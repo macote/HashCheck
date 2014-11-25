@@ -20,12 +20,12 @@ void SHA1FileHash::Initialize()
 
 void SHA1FileHash::Update(UINT32 bytecount)
 {
-    if ((context_.count[0] += bytecount << 3) < (bytecount << 3))
+	UINT32 i, index = (context_.count[0] >> 3) & 63;
+	if ((context_.count[0] += bytecount << 3) < (bytecount << 3))
     {
     	context_.count[1]++;
     }
     context_.count[1] += (bytecount >> 29);
-	UINT32 i, index = (context_.count[0] >> 3) & 63;
     if ((index + bytecount) > 63)
     {
         i = 64 - index;
