@@ -93,14 +93,15 @@
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CRC32FileHash.cc" />
-    <ClCompile Include="FileHash.cc" />
-    <ClCompile Include="FileTree.cc" />
+    <ClCompile Include="CommandLineArgs.cpp" />
+    <ClCompile Include="CRC32FileHash.cpp" />
+    <ClCompile Include="FileHash.cpp" />
+    <ClCompile Include="FileTree.cpp" />
     <ClCompile Include="HashCheck.cpp" />
-    <ClCompile Include="HashCheckWindow.cc" />
-    <ClCompile Include="MD5FileHash.cc" />
-    <ClCompile Include="SHA1FileHash.cc" />
-    <ClCompile Include="Window.cc" />
+    <ClCompile Include="HashCheckWindow.cpp" />
+    <ClCompile Include="MD5FileHash.cpp" />
+    <ClCompile Include="SHA1FileHash.cpp" />
+    <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />

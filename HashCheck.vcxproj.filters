@@ -53,28 +53,31 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CRC32FileHash.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="FileHash.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="HashCheck.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MD5FileHash.cc">
+    <ClCompile Include="CommandLineArgs.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SHA1FileHash.cc">
+    <ClCompile Include="CRC32FileHash.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FileTree.cc">
+    <ClCompile Include="FileHash.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Window.cc">
+    <ClCompile Include="FileTree.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="HashCheckWindow.cc">
+    <ClCompile Include="HashCheckWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MD5FileHash.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SHA1FileHash.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
