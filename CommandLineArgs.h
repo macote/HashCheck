@@ -10,17 +10,23 @@
 
 #include <string>
 #include <map>
-#include <set>
+#include <vector>
+
+#include <windows.h>
 
 class CommandLineArgs
 {
 public:
-	CommandLineArgs();
-	std::string commandLineArguments() const { return commandLineArguments_; }
+	CommandLineArgs(LPSTR commandline) : commandline_(commandline)
+	{ 
+		ParseArguments();
+	}
+	std::string commandline() const { return commandline_; }
+	const std::vector<std::string>& arguments() const { return arguments_; }
 private:
-	std::set<std::string> arguments_;
-	std::map<std::string, std::string> parameters_;
-	std::string commandLineArguments_;
+	void ParseArguments();
+	std::vector<std::string> arguments_;
+	std::string commandline_;
 };
 
 #endif /* COMMANDLINEARGS_H_ */
