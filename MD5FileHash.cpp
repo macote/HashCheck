@@ -1,5 +1,5 @@
 /*
- * MD5FileHash.cc
+ * MD5FileHash.cpp
  *
  *  Created on: 2014-10-22
  *      Author: MAC

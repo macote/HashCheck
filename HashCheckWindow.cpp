@@ -1,5 +1,5 @@
 /*
-* HashCheckWindow.cc
+* HashCheckWindow.cpp
 *
 *  Created on: 2014-11-19
 *      Author: MAC

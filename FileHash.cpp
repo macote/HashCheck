@@ -1,5 +1,5 @@
 /*
- * FileHash.cc
+ * FileHash.cpp
  *
  *  Created on: 2014-10-20
  *      Author: MAC
