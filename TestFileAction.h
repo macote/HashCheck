@@ -5,12 +5,14 @@
 #include "FileTree.h"
 #include "windows.h"
 
-class TestFileAction : public FileAction
+#include "String.h"
+
+class TestFileAction : public FileTreeAction
 {
 public:
-	void Process(const std::string filepath)
+	void Process(const std::wstring filepath)
 	{
-		MessageBox(NULL, filepath.c_str(), "TEST", MB_ICONERROR | MB_SYSTEMMODAL);
+		MessageBox(NULL, filepath.c_str(), L"TEST", MB_ICONERROR | MB_SYSTEMMODAL);
 	}
 };
 

@@ -6,7 +6,6 @@
  */
 
 #include "CRC32FileHash.h"
-#include "windows.h"
 
 const UINT32 CRC32FileHash::kCRC32Table[] = {
 	0x000000000L, 0x077073096L, 0x0EE0E612CL, 0x0990951BAL,
@@ -99,7 +98,11 @@ void CRC32FileHash::Finalize()
 
 void CRC32FileHash::ConvertHashToDigestString()
 {
-	char charbuffer[9];
-	wsprintf(charbuffer, "%08X", hash_);
+	WCHAR charbuffer[9];
+#ifdef _MSC_VER
+	swprintf_s(charbuffer, 9, L"%08X", hash_);
+#else
+	_snwprintf(charbuffer, 9, L"%08X", hash_);
+#endif
 	digest_.append(charbuffer);
 }

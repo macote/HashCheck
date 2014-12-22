@@ -8,8 +8,9 @@
 #ifndef MD5FILEHASH_H_
 #define MD5FILEHASH_H_
 
-#include "windows.h"
 #include "FileHash.h"
+#include <string>
+#include <Windows.h>
 
 struct MD5Context
 {
@@ -22,16 +23,15 @@ class MD5FileHash : public FileHash
 {
 public:
 #if _MSC_VER < 1900
-	MD5FileHash(const std::string &filepath, const DWORD buffersize) : FileHash(filepath, buffersize) {};
-	MD5FileHash(const std::string &filepath) : FileHash(filepath) {};
+	MD5FileHash(const std::wstring &filepath, const DWORD buffersize) : FileHash(filepath, buffersize) { };
+	MD5FileHash(const std::wstring &filepath) : FileHash(filepath) { };
 #else
 	using FileHash::FileHash;
 #endif
-protected:
+private:
 	void Initialize();
 	void Update(UINT32 bytecount);
 	void Finalize();
-private:
 	void Transform(UINT32 state[4], PUINT32 buffer);
 	void ConvertHashToDigestString();
 	BYTE hash_[16];

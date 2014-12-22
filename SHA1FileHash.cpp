@@ -6,7 +6,6 @@
  */
 
 #include "SHA1FileHash.h"
-#include "windows.h"
 
 void SHA1FileHash::Initialize()
 {
@@ -68,10 +67,14 @@ void SHA1FileHash::Finalize()
 
 void SHA1FileHash::ConvertHashToDigestString()
 {
-	char charbuffer[3];
+	WCHAR charbuffer[3];
 	for(UINT i = 0; i < sizeof(hash_); i++)
 	{
-		wsprintf(charbuffer, "%02X", hash_[i]);
+#ifdef _MSC_VER
+		swprintf_s(charbuffer, 3, L"%02X", hash_[i]);
+#else
+		_snwprintf(charbuffer, 3, L"%02X", hash_[i]);
+#endif
 		digest_.append(charbuffer);
 	}
 }

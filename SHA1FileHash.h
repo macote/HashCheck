@@ -8,8 +8,9 @@
 #ifndef SHA1FILEHASH_H_
 #define SHA1FILEHASH_H_
 
-#include "windows.h"
 #include "FileHash.h"
+#include <string>
+#include <Windows.h>
 
 struct SHA1Context
 {
@@ -22,16 +23,15 @@ class SHA1FileHash : public FileHash
 {
 public:
 #if defined(_MSC_VER) && _MSC_VER < 1900
-	SHA1FileHash(const std::string &filepath, const DWORD buffersize) : FileHash(filepath, buffersize) {};
-	SHA1FileHash(const std::string &filepath) : FileHash(filepath) {};
+	SHA1FileHash(const std::wstring &filepath, const DWORD buffersize) : FileHash(filepath, buffersize) { };
+	SHA1FileHash(const std::wstring &filepath) : FileHash(filepath) { };
 #else
 	using FileHash::FileHash;
 #endif
-protected:
+private:
 	void Initialize();
 	void Update(UINT32 bytecount);
 	void Finalize();
-private:
 	void Transform(UINT32 state[5], PUINT32 buffer);
 	void ConvertHashToDigestString();
 	BYTE hash_[20];

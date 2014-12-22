@@ -21,7 +21,7 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
-    <CharacterSet>NotSet</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -80,27 +80,31 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="ChecksumFile.h" />
-    <ClInclude Include="CommandLineArgs.h" />
     <ClInclude Include="CRC32FileHash.h" />
     <ClInclude Include="FileHash.h" />
+    <ClInclude Include="FileStream.h" />
     <ClInclude Include="FileTree.h" />
     <ClInclude Include="HashCheck.h" />
     <ClInclude Include="HashCheckWindow.h" />
     <ClInclude Include="MD5FileHash.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="SHA1FileHash.h" />
-    <ClInclude Include="TestFileAction.h" />
+    <ClInclude Include="StreamLineReader.h" />
+    <ClInclude Include="StreamLineWriter.h" />
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CommandLineArgs.cpp" />
     <ClCompile Include="CRC32FileHash.cpp" />
     <ClCompile Include="FileHash.cpp" />
+    <ClCompile Include="FileStream.cpp" />
     <ClCompile Include="FileTree.cpp" />
     <ClCompile Include="HashCheck.cpp" />
     <ClCompile Include="HashCheckWindow.cpp" />
     <ClCompile Include="MD5FileHash.cpp" />
+    <ClCompile Include="Program.cpp" />
     <ClCompile Include="SHA1FileHash.cpp" />
+    <ClCompile Include="StreamLineReader.cpp" />
+    <ClCompile Include="StreamLineWriter.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>

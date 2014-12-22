@@ -10,7 +10,8 @@
 
 #include "Window.h"
 
-#include <windows.h>
+#include <Windows.h>
+#include <windowsx.h>
 
 class HashCheckWindow : public Window
 {
@@ -20,7 +21,7 @@ public:
 #else
 	using Window::Window;
 #endif	
-	virtual LPCTSTR ClassName() { return TEXT("HashCheckWindow"); }
+	virtual LPCWSTR ClassName() { return L"HashCheckWindow"; }
 	static HashCheckWindow *Create(HINSTANCE hinst);
 protected:
 	LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);

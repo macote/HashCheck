@@ -5,219 +5,164 @@
  *      Author: macote
  */
 
-#define WIN32_LEAN_AND_MEAN
-#define _CRT_SECURE_NO_WARNINGS
-
-#include "FileTree.h"
-#include "TestFileAction.h"
 #include "HashCheck.h"
-#include "CRC32FileHash.h"
-#include "MD5FileHash.h"
-#include "SHA1FileHash.h"
-#include "HashCheckWindow.h"
-#include "CommandLineArgs.h"
 
-#include <string>
-#include <fstream>
-#include <map>
-#include <vector>
-#include <algorithm>
+LPCWSTR HashCheck::kChecksumBaseFileName = L"checksum";
 
-#include <Windows.h>
-#include <Ole2.h>
-#include <CommCtrl.h>
-
-#ifndef _MSC_VER
-// eclipse editor "Function {0} could not be resolved" error suppression workaround
-WINBASEAPI BOOL WINAPI GetFileSizeEx(HANDLE,PLARGE_INTEGER);
-#endif
-
-std::string AppFileName;
-std::string BasePath;
-std::string ChecksumFilename;
-
-MAPFILES Files;
-
-HashTypeEnum HashType;
-
-BOOL Silent;
-BOOL Checking;
-BOOL Updating;
-BOOL SkipCheck;
-BOOL NoBuffering;
-
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+void HashCheck::Initialize()
 {
-//	if (SUCCEEDED(CoInitialize(NULL)))
-//	{
-//		InitCommonControls();
-//		HashCheckWindow *hcw = HashCheckWindow::Create(hInstance);
-//		if (hcw)
-//		{
-//			ShowWindow(hcw->GetHWND(), nCmdShow);
-//			MSG msg;
-//			while (GetMessage(&msg, NULL, 0, 0))
-//			{
-//				TranslateMessage(&msg);
-//				DispatchMessage(&msg);
-//			}
-//		}
-//		CoUninitialize();
-//	}
-//	return 0;
+	silent_ = FALSE;
+	checking_ = FALSE;
+	updating_ = FALSE;
+	skipcheck_ = FALSE;
+
+	hashtype_ = Undefined;
+
+	appfilename_ = GetAppFileName(args_[0].c_str());
+	args_.erase(args_.begin());
 
 	WIN32_FIND_DATA FindFileData;
 	HANDLE hFind;
-	std::string TempPath;
-
-	Silent = false;
-	Checking = false;
-	Updating = false;
-	SkipCheck = false;
-	NoBuffering = true;
-
-	HashType = htUndefined;
-
-	if (lstrlen(lpCmdLine) > 0) {
-
-		std::string cmdLine(lpCmdLine);
-
-		// checksum update?
-		std::string::size_type idx = cmdLine.find("-u");
-		if (idx != std::string::npos) {
-			Updating = true;
-			cmdLine = cmdLine.substr(0, idx) + cmdLine.substr(idx + 2);
+	
+	if (args_.size() > 0)
+	{
+		std::vector<std::wstring>::iterator it;
+		it = std::find(args_.begin(), args_.end(), L"-u");
+		if (it != args_.end())
+		{
+			updating_ = TRUE;
+			args_.erase(it);
 		}
-
-		// skip checking?
-		idx = cmdLine.find("-sm");
-		if (idx != std::string::npos) {
-			SkipCheck = true;
-			cmdLine = cmdLine.substr(0, idx) + cmdLine.substr(idx + 3);
+		it = std::find(args_.begin(), args_.end(), L"-sm");
+		if (it != args_.end())
+		{
+			skipcheck_ = TRUE;
+			args_.erase(it);
 		}
-
-		idx = cmdLine.find("-sha1");
-		if (idx != std::string::npos) {
-			HashType = htSHA1;
-			cmdLine = cmdLine.substr(0, idx) + cmdLine.substr(idx + 5);
+		it = std::find(args_.begin(), args_.end(), L"-sha1");
+		if (it != args_.end())
+		{
+			hashtype_ = SHA1;
+			args_.erase(it);
 		}
-
-		idx = cmdLine.find("-md5");
-		if (idx != std::string::npos) {
-			HashType = htMD5;
-			cmdLine = cmdLine.substr(0, idx) + cmdLine.substr(idx + 4);
+		it = std::find(args_.begin(), args_.end(), L"-md5");
+		if (it != args_.end())
+		{
+			hashtype_ = MD5;
+			args_.erase(it);
 		}
-
-		idx = cmdLine.find("-crc32");
-		if (idx != std::string::npos) {
-			HashType = htCRC32;
-			cmdLine = cmdLine.substr(0, idx) + cmdLine.substr(idx + 6);
+		it = std::find(args_.begin(), args_.end(), L"-crc32");
+		if (it != args_.end())
+		{
+			hashtype_ = CRC32;
+			args_.erase(it);
 		}
-
-		if (cmdLine.size() > 0) {
-
-			while (cmdLine.at(0) == ' ')
-				cmdLine = cmdLine.substr(1);
-			if (cmdLine.at(cmdLine.size() - 1) != '\\')
-				cmdLine += "\\";
-
-			TempPath = cmdLine + "*";
-			hFind = FindFirstFile(TempPath.c_str(), &FindFileData);
-			if (hFind != INVALID_HANDLE_VALUE) {
-				FindClose(hFind);
-				BasePath = cmdLine;
-			}
-			else
-				Silent = true;
-
-		}
-
 	}
 
-	char ModuleFileName[512];
-
-	GetModuleFileName(NULL, (LPTSTR)ModuleFileName, 512);
-	AppFileName = GetAppFileName((LPSTR)ModuleFileName);
-
-	std::string baseFilename = CHECKSUM_FILE_BASE;
-	if (HashType == htSHA1)
-		ChecksumFilename = baseFilename + ".sha1";
-	else if (HashType == htMD5)
-		ChecksumFilename = baseFilename + ".md5";
-	else if (HashType == htCRC32)
-		ChecksumFilename = baseFilename + ".crc32";
-	else {
-		ChecksumFilename = baseFilename + ".sha1";
-		hFind = FindFirstFile(ChecksumFilename.c_str(), &FindFileData);
+	if (args_.size() > 0)
+	{
+		std::wstring tmp(args_[0]);
+		if (*(tmp.end() - 1) != L'\\')
+		{
+			tmp += L'\\';
+		}
+		tmp += L"*";
+		hFind = FindFirstFile(tmp.c_str(), &FindFileData);
 		if (hFind != INVALID_HANDLE_VALUE) {
 			FindClose(hFind);
-			HashType = htSHA1;
+			basepath_ = args_[0] + L'\\';
+		}
+		else
+		{
+			silent_ = true;
+		}
+	}
+
+	std::wstring baseFilename = kChecksumBaseFileName;
+	if (hashtype_ == SHA1)
+		checksumfilename_ = baseFilename + L".sha1";
+	else if (hashtype_ == MD5)
+		checksumfilename_ = baseFilename + L".md5";
+	else if (hashtype_ == CRC32)
+		checksumfilename_ = baseFilename + L".crc32";
+	else {
+		checksumfilename_ = baseFilename + L".sha1";
+		hFind = FindFirstFile(checksumfilename_.c_str(), &FindFileData);
+		if (hFind != INVALID_HANDLE_VALUE) {
+			FindClose(hFind);
+			hashtype_ = SHA1;
 		}
 		else {
-			ChecksumFilename = baseFilename + ".md5";
-			hFind = FindFirstFile(ChecksumFilename.c_str(), &FindFileData);
+			checksumfilename_ = baseFilename + L".md5";
+			hFind = FindFirstFile(checksumfilename_.c_str(), &FindFileData);
 			if (hFind != INVALID_HANDLE_VALUE) {
 				FindClose(hFind);
-				HashType = htMD5;
+				hashtype_ = MD5;
 			}
 			else {
-				ChecksumFilename = baseFilename + ".crc32";
-				hFind = FindFirstFile(ChecksumFilename.c_str(), &FindFileData);
+				checksumfilename_ = baseFilename + L".crc32";
+				hFind = FindFirstFile(checksumfilename_.c_str(), &FindFileData);
 				if (hFind != INVALID_HANDLE_VALUE) {
 					FindClose(hFind);
-					HashType = htCRC32;
+					hashtype_ = CRC32;
 				}
 				else {
-					ChecksumFilename = baseFilename + ".sha1";
-					HashType = htSHA1;
+					checksumfilename_ = baseFilename + L".sha1";
+					hashtype_ = SHA1;
 				}
 			}
 		}
 	}
 
-	hFind = FindFirstFile(ChecksumFilename.c_str(), &FindFileData);
+	hFind = FindFirstFile(checksumfilename_.c_str(), &FindFileData);
 	if (hFind != INVALID_HANDLE_VALUE) {
 		FindClose(hFind);
 		if (!(FindFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
-			if (!Updating)
-				Checking = true;
+			checking_ = !updating_;
 		}
 		else {
-			if (!Silent) {
-				std::string msg = "Error: Can't create checksum file. Delete '" + ChecksumFilename + "' folder.";
-				MessageBox(NULL, msg.c_str(), "HashCheck", MB_ICONERROR | MB_SYSTEMMODAL);
+			if (!silent_) {
+				std::wstring msg = L"Error: Can't create checksum file. Delete '" + checksumfilename_ + L"' folder.";
+				MessageBox(NULL, msg.c_str(), L"HashCheck", MB_ICONERROR | MB_SYSTEMMODAL);
 			}
-			return -1;
+			else
+			{
+				// ...
+			}
+			ExitProcess(0);
 		}
 	}
 	else {
-		Updating = false;
+		updating_ = false;
 	}
 
-	if (Checking) {
+}
+
+int HashCheck::Process()
+{
+
+	if (checking_) {
 
 		// Verify files
 
-		char TempFileName[MAX_PATH];
-		TCHAR TempFolder[MAX_PATH];
+		WCHAR TempFileName[MAX_PATH];
+		WCHAR TempFolder[MAX_PATH];
 
 		GetTempPath(MAX_PATH, TempFolder);
-		GetTempFileName(TempFolder, "HashCheck", 0, TempFileName);
+		GetTempFileName(TempFolder, L"HashCheck", 0, TempFileName);
 
 		int Result = Verify(TempFileName);
 
 		if (Result != 0) {
-			if (!Silent) {
+			if (!silent_) {
 				switch (Result) {
 				case -1:
-					MessageBox(NULL,
-							"Error: Could not create report file.",
-							"HashCheck", MB_ICONERROR | MB_SYSTEMMODAL);
+					MessageBox(NULL,L"Error: Could not create report file.",
+							L"HashCheck", MB_ICONERROR | MB_SYSTEMMODAL);
 					break;
 				case -2:
-					MessageBox(NULL,
-							"Error: Could not open checksum file.",
-							"HashCheck", MB_ICONERROR | MB_SYSTEMMODAL);
+					MessageBox(NULL,L"Error: Could not open checksum file.",
+							L"HashCheck", MB_ICONERROR | MB_SYSTEMMODAL);
 					break;
 				default:
 					break;
@@ -234,14 +179,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				if (!ViewReport(TempFileName)) {
 					CloseHandle(hFile);
 					DeleteFile(TempFileName);
-					if (!Silent)
-						MessageBox(NULL, "Error: Could not open report.",
-								"HashCheck", MB_ICONERROR | MB_SYSTEMMODAL);
+					if (!silent_)
+						MessageBox(NULL, L"Error: Could not open report.",
+								L"HashCheck", MB_ICONERROR | MB_SYSTEMMODAL);
 					return -1;
 				}
 			}
-			else if (!Silent)
-				MessageBox(NULL, "All files OK.", "HashCheck", MB_ICONINFORMATION |
+			else if (!silent_)
+				MessageBox(NULL, L"All files OK.", L"HashCheck", MB_ICONINFORMATION |
 						MB_SYSTEMMODAL);
 			CloseHandle(hFile);
 			DeleteFile(TempFileName);
@@ -250,40 +195,40 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	}
 	else {
 
-		if (Updating) {
+		if (updating_) {
 
 			// Update checksum file
 
-			char TempFileName[MAX_PATH];
-			TCHAR TempFolder[MAX_PATH];
+			WCHAR TempFileName[MAX_PATH];
+			WCHAR TempFolder[MAX_PATH];
 
 			GetTempPath(MAX_PATH, TempFolder);
-			GetTempFileName(TempFolder, "SHA1", 0, TempFileName);
+			GetTempFileName(TempFolder, L"SHA1", 0, TempFileName);
 
 			int Result = Update(TempFileName);
 
 			if (Result != 0) {
-				if (!Silent) {
+				if (!silent_) {
 					switch (Result) {
 					case -1:
-						MessageBox(NULL, "Error: Could not create new checksum file.",
-								"HashCheck", MB_ICONERROR | MB_SYSTEMMODAL);
+						MessageBox(NULL, L"Error: Could not create new checksum file.",
+								L"HashCheck", MB_ICONERROR | MB_SYSTEMMODAL);
 						break;
 					case -2:
-						MessageBox(NULL, "Error: Could not open existing checksum file.",
-								"HashCheck", MB_ICONERROR | MB_SYSTEMMODAL);
+						MessageBox(NULL, L"Error: Could not open existing checksum file.",
+								L"HashCheck", MB_ICONERROR | MB_SYSTEMMODAL);
 						break;
 					case -3:
-						MessageBox(NULL, "Error: Nothing to update.",
-								"HashCheck", MB_ICONERROR | MB_SYSTEMMODAL);
+						MessageBox(NULL, L"Error: Nothing to update.",
+								L"HashCheck", MB_ICONERROR | MB_SYSTEMMODAL);
 						break;
 					case -4:
-						MessageBox(NULL, "Error: Files are missing, can't update.",
-								"HashCheck", MB_ICONERROR | MB_SYSTEMMODAL);
+						MessageBox(NULL, L"Error: Files are missing, can't update.",
+								L"HashCheck", MB_ICONERROR | MB_SYSTEMMODAL);
 						break;
 					case -5:
-						MessageBox(NULL, "Error: Can't replace existing checksum file.",
-								"HashCheck", MB_ICONERROR | MB_SYSTEMMODAL);
+						MessageBox(NULL, L"Error: Can't replace existing checksum file.",
+								L"HashCheck", MB_ICONERROR | MB_SYSTEMMODAL);
 						break;
 					default:
 						break;
@@ -297,9 +242,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 							if (!ViewReport(TempFileName)) {
 								CloseHandle(hFile);
 								DeleteFile(TempFileName);
-								if (!Silent)
-									MessageBox(NULL, "Error: Could not open report.",
-											"HashCheck", MB_ICONERROR | MB_SYSTEMMODAL);
+								if (!silent_)
+									MessageBox(NULL, L"Error: Could not open report.",
+											L"HashCheck", MB_ICONERROR | MB_SYSTEMMODAL);
 							}
 						}
 					}
@@ -308,9 +253,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				return Result;
 
 			}
-			else if (!Silent)
-				MessageBox(NULL, "Checksum file was updated successfully.",
-						"HashCheck", MB_ICONINFORMATION | MB_SYSTEMMODAL);
+			else if (!silent_)
+				MessageBox(NULL, L"Checksum file was updated successfully.",
+						L"HashCheck", MB_ICONINFORMATION | MB_SYSTEMMODAL);
 
 		}
 		else {
@@ -320,24 +265,24 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			int Result = Create();
 
 			if (Result != 0) {
-				if (!Silent)
+				if (!silent_)
 					switch (Result) {
 					case -1:
-						MessageBox(NULL, "Error: Could not create checksum file.",
-								"HashCheck", MB_ICONERROR | MB_SYSTEMMODAL);
+						MessageBox(NULL, L"Error: Could not create checksum file.",
+								L"HashCheck", MB_ICONERROR | MB_SYSTEMMODAL);
 						break;
 					case -2:
-						MessageBox(NULL, "Error: No file to process.",
-								"HashCheck", MB_ICONERROR | MB_SYSTEMMODAL);
+						MessageBox(NULL, L"Error: No file to process.",
+								L"HashCheck", MB_ICONERROR | MB_SYSTEMMODAL);
 						break;
 					default:
 						break;
 					}
 				return Result;
 			}
-			else if (!Silent)
-				MessageBox(NULL, "Checksum file was created successfully.",
-						"HashCheck", MB_ICONINFORMATION | MB_SYSTEMMODAL);
+			else if (!silent_)
+				MessageBox(NULL, L"Checksum file was created successfully.",
+						L"HashCheck", MB_ICONINFORMATION | MB_SYSTEMMODAL);
 
 		}
 
@@ -346,111 +291,96 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	return 0;
 }
 
-int Verify(LPCTSTR tempFileName) {
+int HashCheck::Verify(LPCWSTR tempFileName) {
 
-	std::ofstream report;
-	std::ifstream checksumFile;
+	int retval = 0;
 
-	report.open(tempFileName, std::ios::out);
-	if (!report.is_open())
-		return -1;
+	FileStream report(tempFileName, FileStream::Truncate);
+	StreamLineWriter reportwriter(report);
+	FileStream checksumfile(checksumfilename_.c_str(), FileStream::Open);
+	StreamLineReader checksumfilereader(checksumfile);
 
-	checksumFile.open(ChecksumFilename.c_str(), std::ios::in);
-	if (!checksumFile.is_open()) {
-		report.close();
-		DeleteFile(tempFileName);
-		return -2;
-	}
-
-	// Cache the SHA1 file using the map
-
-	char LineBuffer[1024], FileBuf[512];
-	std::string RecBuffer, FileKey, Temp;
-	std::string::size_type xPos, yPos;
-	PFileInfo pFSI;
+	WCHAR FileBuf[512];
+	std::wstring RecBuffer, FileKey, Temp;
+	std::wstring::size_type xPos, yPos;
+	FileProperties* fileproperties;
 
 	do {
-		checksumFile.getline(LineBuffer, 1024);
-		RecBuffer = LineBuffer;
+		RecBuffer = checksumfilereader.ReadLine();
 		if (IsValidChecksumLine(RecBuffer)) {
-			// Fill the FileInfo struct
-			pFSI = new FileInfo;
 			xPos = RecBuffer.find('|', 0);
 			Temp = RecBuffer.substr(0, xPos);
-			pFSI->FileName = Temp;
+			fileproperties = new FileProperties(Temp);
 			lstrcpy(FileBuf, Temp.c_str());
 			CharUpper(FileBuf);
 			FileKey = FileBuf;
 			yPos = RecBuffer.find('|', xPos + 1);
 			Temp = RecBuffer.substr(xPos + 1, yPos - (xPos + 1));
-			sscanf(Temp.c_str(), "%I64d", &pFSI->Size.QuadPart);
+			LARGE_INTEGER li;
+			swscanf(Temp.c_str(), L"%I64d", &li.QuadPart);
+			fileproperties->set_size(li);
 			xPos = RecBuffer.find('|', yPos + 1);
-			pFSI->Digest = RecBuffer.substr(yPos + 1, RecBuffer.size() - yPos);
-			// Add the file to the map
-			Files.insert(std::pair<std::string, PFileInfo>(FileKey, pFSI));
+			fileproperties->set_digest(RecBuffer.substr(yPos + 1, RecBuffer.size() - yPos));
+			files_.insert(std::pair<std::wstring, FileProperties*>(FileKey, fileproperties));
 		}
-	} while (!checksumFile.eof());
+	} while (!checksumfilereader.EndOfStream());
 
-	checksumFile.close();
+	ProcessTree(basepath_, reportwriter);
 
-	ProcessTree(BasePath, report);
-
-	if (Files.size() != 0) {
-
-		// Report missing files
-
-		for (MAPFILESITER i = Files.begin(); i != Files.end(); i++) {
-			report << "Missing             : " << (*i).second->FileName << std::endl;
-			delete (*i).second;
+	if (files_.size() != 0) {
+		for (auto& it : files_) {
+			reportwriter.WriteLine(L"Missing             : " + it.second->filename());
+			delete it.second;
 		}
-
-		Files.clear();
-
+		files_.clear();
 	}
 
-	report.close();
-
-	return 0;
+	return retval;
 
 }
 
-int Create(void) {
+int HashCheck::Create() {
 
-	std::ofstream checksumFile;
+	int retval = 0;
 
-	checksumFile.open(ChecksumFilename.c_str(), std::ios::out);
-	if (!checksumFile.is_open())
-		return -1;
+	FileStream checksumfile(checksumfilename_.c_str(), FileStream::Create);
+	StreamLineWriter checksumfilewriter(checksumfile);
 
-	ProcessTree(BasePath, checksumFile);
+	ProcessTree(basepath_, checksumfilewriter);
 
-	checksumFile.close();
+	checksumfilewriter.Close();
 
-	HANDLE hFile = CreateFile(ChecksumFilename.c_str(), GENERIC_READ,
+	HANDLE hFile = CreateFile(checksumfilename_.c_str(), GENERIC_READ,
 			FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 
 	if (hFile != INVALID_HANDLE_VALUE) {
 		if (IsFileEmpty(hFile)) {
 			CloseHandle(hFile);
-			DeleteFile(ChecksumFilename.c_str());
-			return -2;
+			DeleteFile(checksumfilename_.c_str());
+			retval = -2;
 		}
-		CloseHandle(hFile);
+		else
+		{
+			CloseHandle(hFile);
+		}
 	}
 
-	return 0;
+	return retval;
 
 }
 
-int Update(LPCTSTR tempFileName) {
+int HashCheck::Update(LPCWSTR tempFileName) {
 
-	std::ifstream oldChecksumFile;
-	std::ofstream newChecksumFile;
-
-	LARGE_INTEGER oldChecksumSize, newChecksumSize;
 	int retval = 0;
 
-	HANDLE hFile = CreateFile(ChecksumFilename.c_str(), GENERIC_READ,
+	FileStream oldchecksumfile(checksumfilename_.c_str(), FileStream::Open);
+	StreamLineReader oldchecksumfilereader(oldchecksumfile);
+	FileStream newchecksumfile(tempFileName, FileStream::Truncate);
+	StreamLineWriter newchecksumfilewriter(newchecksumfile);
+
+	LARGE_INTEGER oldChecksumSize, newChecksumSize;
+
+	HANDLE hFile = CreateFile(checksumfilename_.c_str(), GENERIC_READ,
 			FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 
 	if (hFile != INVALID_HANDLE_VALUE) {
@@ -461,65 +391,47 @@ int Update(LPCTSTR tempFileName) {
 	else
 		return -2;
 
-	newChecksumFile.open(tempFileName, std::ios::out);
-	if (!newChecksumFile.is_open())
-		return -1;
-
-	oldChecksumFile.open(ChecksumFilename.c_str(), std::ios::in);
-	if (!oldChecksumFile.is_open()) {
-		newChecksumFile.close();
-		DeleteFile(tempFileName);
-		return -2;
-	}
-
-	// Cache the SHA1 file using the map
-
-	char LineBuffer[1024], FileBuf[512];
-	std::string RecBuffer, FileKey, Temp;
-	UINT32 xPos, yPos;
-	PFileInfo pFSI;
+	WCHAR FileBuf[512];
+	std::wstring RecBuffer, FileKey, Temp;
+	std::wstring::size_type xPos, yPos;
+	FileProperties* fileproperties;
 
 	do {
-		oldChecksumFile.getline(LineBuffer, 1024);
-		RecBuffer = LineBuffer;
+		RecBuffer = oldchecksumfilereader.ReadLine();
 		if (IsValidChecksumLine(RecBuffer)) {
-			// Fill the FileInfo struct
-			pFSI = new FileInfo;
 			xPos = RecBuffer.find('|', 0);
 			Temp = RecBuffer.substr(0, xPos);
-			pFSI->FileName = Temp;
+			fileproperties = new FileProperties(Temp);
 			lstrcpy(FileBuf, Temp.c_str());
 			CharUpper(FileBuf);
 			FileKey = FileBuf;
 			yPos = RecBuffer.find('|', xPos + 1);
-			Temp = RecBuffer.substr(xPos + 1, yPos);
-			sscanf(Temp.c_str(), "%I64d", &pFSI->Size.QuadPart);
+			Temp = RecBuffer.substr(xPos + 1, yPos - (xPos + 1));
+			LARGE_INTEGER li;
+			swscanf(Temp.c_str(), L"%I64d", &li.QuadPart);
+			fileproperties->set_size(li);
 			xPos = RecBuffer.find('|', yPos + 1);
-			pFSI->Digest = RecBuffer.substr(yPos + 1, RecBuffer.size() - yPos);
-			// Add the file to the map
-			Files.insert(std::pair<std::string, PFileInfo>(FileKey, pFSI));
-			newChecksumFile << LineBuffer << std::endl;
+			fileproperties->set_digest(RecBuffer.substr(yPos + 1, RecBuffer.size() - yPos));
+			files_.insert(std::pair<std::wstring, FileProperties*>(FileKey, fileproperties));
+			newchecksumfilewriter.WriteLine(RecBuffer);
 		}
-	} while (!oldChecksumFile.eof());
+	} while (!oldchecksumfilereader.EndOfStream());
 
-	oldChecksumFile.close();
+	oldchecksumfilereader.Close();
 
-	ProcessTree(BasePath, newChecksumFile);
+	ProcessTree(basepath_, newchecksumfilewriter);
 
-	newChecksumFile.close();
+	newchecksumfilewriter.Close();
 
-	if (Files.size() != 0) {
-		// Files are missing - can't update
-		std::ofstream report;
-		report.open(tempFileName, std::ios::out);
-		if (!report.is_open())
-			return -4;
-		for (MAPFILESITER i = Files.begin(); i != Files.end(); i++) {
-			report << "Missing             : " << (*i).second->FileName << std::endl;
-			delete (*i).second;
+	if (files_.size() != 0) {
+		// some files are missing: can't update
+		FileStream report(tempFileName, FileStream::Truncate);
+		StreamLineWriter reportwriter(report);
+		for (auto& it : files_) {
+			reportwriter.WriteLine(L"Missing             : " + it.second->filename());
+			delete it.second;
 		}
-		Files.clear();
-		report.close();
+		files_.clear();
 		retval = -4;
 	}
 	else {
@@ -537,7 +449,7 @@ int Update(LPCTSTR tempFileName) {
 				}
 				else {
 					// Replace checksum file
-					if (CopyFile(tempFileName, ChecksumFilename.c_str(), false) == 0) {
+					if (CopyFile(tempFileName, checksumfilename_.c_str(), FALSE) == 0) {
 						retval = -5;
 					}
 				}
@@ -554,42 +466,42 @@ int Update(LPCTSTR tempFileName) {
 
 }
 
-std::string GetAppFileName(LPSTR AppTitle) {
+std::wstring HashCheck::GetAppFileName(LPCWSTR AppTitle) {
 
-	std::string Temp = AppTitle;
+	std::wstring Temp = AppTitle;
 
-	int sPos = Temp.rfind("\\") + 1;
-	int ePos = Temp.rfind(".") + 4 - sPos;
+	int sPos = Temp.rfind(L"\\") + 1;
+	int ePos = Temp.rfind(L".") + 4 - sPos;
 
 	return Temp.substr(sPos, ePos);
 
 }
 
-void ProcessTree(std::string sPath, std::ostream& out) {
+void HashCheck::ProcessTree(std::wstring sPath, StreamLineWriter& out) {
 
 	WIN32_FIND_DATA FindFileData;
 	HANDLE hFind, hFile;
-	std::string Pattern, CurFile, BaseFile;
-	char FileBuf[512];
+	std::wstring Pattern, CurFile, BaseFile;
+	WCHAR FileBuf[512];
 	BOOL AddFileInfo;
 
-	FileInfo FileInfo;
+	FileProperties fileproperties(L"");
 
-	Pattern = sPath + "*";
+	Pattern = sPath + L"*";
 
 	hFind = FindFirstFile(Pattern.c_str(), &FindFileData);
 
 	if (hFind != INVALID_HANDLE_VALUE) {
 
-		MAPFILESITER i;
+		std::map<std::wstring, FileProperties*, std::less<std::wstring>>::iterator i;
 		do {
 
 			if (FindFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
 
-				if ((lstrcmp(FindFileData.cFileName, ".") != 0) &&
-						(lstrcmp(FindFileData.cFileName, "..") != 0)) {
+				if ((lstrcmp(FindFileData.cFileName, L".") != 0) &&
+						(lstrcmp(FindFileData.cFileName, L"..") != 0)) {
 
-					Pattern = sPath + FindFileData.cFileName + "\\";
+					Pattern = sPath + FindFileData.cFileName + L"\\";
 					ProcessTree(Pattern, out);
 
 				}
@@ -597,66 +509,68 @@ void ProcessTree(std::string sPath, std::ostream& out) {
 			}
 			else {
 
-				if (!((sPath.size() == 0) && (0 == lstrcmpi(ChecksumFilename.c_str(), FindFileData.cFileName) ||
-						(0 == lstrcmpi(AppFileName.c_str(), FindFileData.cFileName))))) {
+				if (!((sPath.size() == 0) && (0 == lstrcmpi(checksumfilename_.c_str(), FindFileData.cFileName) ||
+						(0 == lstrcmpi(appfilename_.c_str(), FindFileData.cFileName))))) {
 
 					CurFile = sPath + FindFileData.cFileName;
 
-					FileInfo.Size.QuadPart = 0;
-					FileInfo.Digest = "";
+					LARGE_INTEGER li;
+					li.QuadPart = 0;
+					fileproperties.set_size(li);
+					fileproperties.set_digest(L"");
 
-					BaseFile = CurFile.substr(BasePath.length(), CurFile.length());
+					BaseFile = CurFile.substr(basepath_.length(), CurFile.length());
 
 					AddFileInfo = FALSE;
 
-					if (Checking) {
+					if (checking_) {
 
 						lstrcpy(FileBuf, BaseFile.c_str());
 						CharUpper(FileBuf);
-						i = Files.find(FileBuf);
-						if (i != Files.end()) {
+						i = files_.find(FileBuf);
+						if (i != files_.end()) {
 
 							hFile = CreateFile(CurFile.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL,
 									OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 
 							if (hFile != INVALID_HANDLE_VALUE) {
 
-								if (!SkipCheck)
-									CalculateChecksum(hFile, &FileInfo, CurFile);
-								if (!GetFileSizeEx(hFile, &FileInfo.Size)) {
-									out << "Error getting file size : " << BaseFile << std::endl;
+								if (!skipcheck_)
+									CalculateChecksum(hFile, fileproperties, CurFile);
+								if (!GetFileSizeEx(hFile, &li)) {
+									out.WriteLine(L"Error getting file size : " + BaseFile);
 								}
 								else {
-									if (FileInfo.Size.QuadPart != (*i).second->Size.QuadPart)
-										out << "Incorrect file size : " << BaseFile << std::endl;
-									else if (ChecksumCompare(&FileInfo, (*i).second)) {
-										if (!SkipCheck)
-											out << "Incorrect checksum  : " << BaseFile << std::endl;
+									if (li.QuadPart != (*i).second->size().QuadPart)
+										out.WriteLine(L"Incorrect file size : " + BaseFile);
+									else if (ChecksumCompare(fileproperties, *(*i).second)) {
+										if (!skipcheck_)
+											out.WriteLine(L"Incorrect checksum  : " + BaseFile);
 									}
 								}
 								CloseHandle(hFile);
 
 							}
 							else
-								out << "Error opening file  : " << BaseFile << std::endl;
+								out.WriteLine(L"Error opening file  : " + BaseFile);
 
 							delete (*i).second;
-							Files.erase(i);
+							files_.erase(i);
 
 						}
 						else
-							out << "Unknown             : " << BaseFile << std::endl;
+							out.WriteLine(L"Unknown             : " + BaseFile);
 
 					}
-					else if (Updating) {
+					else if (updating_) {
 
 						lstrcpy(FileBuf, BaseFile.c_str());
 						CharUpper(FileBuf);
-						i = Files.find(FileBuf);
-						if (i != Files.end()) {
+						i = files_.find(FileBuf);
+						if (i != files_.end()) {
 
 							delete (*i).second;
-							Files.erase(i);
+							files_.erase(i);
 
 						}
 						else
@@ -672,13 +586,11 @@ void ProcessTree(std::string sPath, std::ostream& out) {
 								OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 
 						if (hFile != INVALID_HANDLE_VALUE) {
-							CalculateChecksum(hFile, &FileInfo, CurFile);
-							GetFileSizeEx(hFile, &FileInfo.Size);
+							CalculateChecksum(hFile, fileproperties, CurFile);
+							GetFileSizeEx(hFile, &li);
 							CloseHandle(hFile);
 						}
-
-						out << BaseFile << "|";
-						out << LargeIntToString(FileInfo.Size) << "|" << FileInfo.Digest << std::endl;
+						out.WriteLine(BaseFile + L"|" + LargeIntToString(li) + L"|" + fileproperties.digest());
 
 					}
 
@@ -694,19 +606,19 @@ void ProcessTree(std::string sPath, std::ostream& out) {
 
 }
 
-BOOL IsValidChecksumLine(std::string checksumLine) {
+BOOL HashCheck::IsValidChecksumLine(const std::wstring& checksumLine) {
 
-	if (checksumLine.size() == 0) return false;
+	if (checksumLine.size() == 0) return FALSE;
 
-	if (checksumLine.size() > 512) return false;
+	if (checksumLine.size() > 512) return FALSE;
 
 	// ...
 
-	return true;
+	return TRUE;
 
 }
 
-BOOL IsFileEmpty(HANDLE hFile) {
+BOOL HashCheck::IsFileEmpty(HANDLE hFile) {
 
 	BOOL FileEmpty = TRUE;
 	LARGE_INTEGER Size;
@@ -719,48 +631,52 @@ BOOL IsFileEmpty(HANDLE hFile) {
 
 }
 
-std::string LargeIntToString(const LARGE_INTEGER& li) {
-	char tmp[255];
-	sprintf(tmp, "%I64d", li.QuadPart);
-	std::string result(tmp);
+std::wstring HashCheck::LargeIntToString(const LARGE_INTEGER& li) {
+	WCHAR tmp[255];
+#ifdef _MSC_VER
+	swprintf(tmp, 255, L"%I64d", li.QuadPart);
+#else
+	_snwprintf(tmp, 255, L"%I64d", li.QuadPart);
+#endif
+	std::wstring result(tmp);
 	return result;
 }
 
-BOOL ChecksumCompare(PFileInfo ChecksumInfo1, PFileInfo ChecksumInfo2) {
+BOOL HashCheck::ChecksumCompare(const FileProperties& fileprop1, const FileProperties& fileprop2) {
 
-	return (ChecksumInfo1->Digest != ChecksumInfo2->Digest) ? true : false;
+	return fileprop1.digest() != fileprop2.digest();
 
 }
 
-void CalculateChecksum(HANDLE hFile, PFileInfo pFileInfo, std::string filePath) {
+void HashCheck::CalculateChecksum(HANDLE hFile, FileProperties& fileprop, std::wstring filePath) {
 
 	FileHash* fileHash = NULL;
-	if (HashType == htSHA1)
+	if (hashtype_ == SHA1)
 	{
 		fileHash = new SHA1FileHash(filePath);
 	}
-	else if (HashType == htMD5)
+	else if (hashtype_ == MD5)
 	{
 		fileHash = new MD5FileHash(filePath);
 	}
-	else if (HashType == htCRC32)
+	else if (hashtype_ == CRC32)
 	{
 		fileHash = new CRC32FileHash(filePath);
 	}
 	if (fileHash != NULL)
 	{
 		fileHash->Compute();
-		pFileInfo->Digest.append(fileHash->digest());
+		fileprop.set_digest(fileHash->digest());
 		delete fileHash;
 	}
 
 }
 
-BOOL ViewReport(LPTSTR TempFile) {
+BOOL HashCheck::ViewReport(LPWSTR TempFile) {
 
-	char CmdLine[255];
+	WCHAR CmdLine[255];
 
-	lstrcpy(CmdLine, "notepad.exe ");
+	lstrcpy(CmdLine, L"notepad.exe ");
 	lstrcat(CmdLine, TempFile);
 
 	STARTUPINFO si;
@@ -772,19 +688,18 @@ BOOL ViewReport(LPTSTR TempFile) {
 
 	ZeroMemory(&pi, sizeof(pi));
 
-	if (CreateProcess(NULL, CmdLine, NULL, NULL, false, 0, NULL, NULL,
-			&si, &pi)) {
+	if (CreateProcess(NULL, CmdLine, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
 
 		WaitForSingleObject(pi.hProcess, INFINITE);
 
 		CloseHandle(pi.hProcess);
 		CloseHandle(pi.hThread);
 
-		return true;
+		return TRUE;
 
 	}
 
-	return false;
+	return FALSE;
 
 }
 

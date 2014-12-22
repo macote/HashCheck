@@ -8,35 +8,34 @@
 #ifndef FILETREE_H_
 #define FILETREE_H_
 
-#include "windows.h"
-
 #include <string>
+#include <Windows.h>
 
 // file action interface for FileTree processor
-class FileAction
+class FileTreeAction
 {
 public:
-	virtual ~FileAction() {}
-	virtual void Process(const std::string filepath) = 0;
+	virtual ~FileTreeAction() { }
+	virtual void Process(const std::wstring filepath) = 0;
 };
 
 // file tree processor
 class FileTree
 {
 public:
-	FileTree(const std::string &basepath, FileAction *fileaction) : basepath_(basepath), fileaction_(fileaction) {};
+	FileTree(const std::wstring basepath, FileTreeAction *fileaction) : basepath_(basepath), fileaction_(fileaction) { };
 	~FileTree()
 	{
-		if (fileaction_ != nullptr) delete fileaction_;
+		if (fileaction_ != NULL) delete fileaction_;
 	}
 	void Process()
 	{
 		ProcessTree(basepath_);
 	}
 private:
-	void ProcessTree(const std::string path);
-	const std::string basepath_;
-	FileAction *fileaction_;
+	void ProcessTree(const std::wstring path);
+	const std::wstring basepath_;
+	FileTreeAction *fileaction_;
 };
 
 #endif /* FILETREE_H_ */

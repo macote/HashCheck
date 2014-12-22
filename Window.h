@@ -8,7 +8,7 @@
 #ifndef WINDOW_H_
 #define WINDOW_H_
 
-#include <windows.h>
+#include <Windows.h>
 
 class Window
 {
@@ -18,13 +18,13 @@ public:
 protected:
 	virtual LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 	virtual void PaintContent(PAINTSTRUCT *pps) { }
-	virtual LPCTSTR ClassName() = 0;
+	virtual LPCWSTR ClassName() = 0;
 	virtual BOOL WinRegisterClass(WNDCLASS *pwc)
 	{
 		return RegisterClass(pwc);
 	}
 	virtual ~Window() { }
-	HWND WinCreateWindow(DWORD dwExStyle, LPCTSTR pszName,
+	HWND WinCreateWindow(DWORD dwExStyle, LPCWSTR pszName,
 		DWORD dwStyle, int x, int y, int cx, int cy,
 		HWND hwndParent, HMENU hmenu)
 	{

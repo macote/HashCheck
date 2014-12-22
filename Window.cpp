@@ -7,8 +7,6 @@
 
 #include "Window.h"
 
-#include <windows.h>
-
 void Window::Register()
 {
 	WNDCLASS wc;

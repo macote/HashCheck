@@ -36,9 +36,6 @@
     <ClInclude Include="FileTree.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TestFileAction.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ChecksumFile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -48,15 +45,18 @@
     <ClInclude Include="HashCheckWindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CommandLineArgs.h">
+    <ClInclude Include="FileStream.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StreamLineReader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StreamLineWriter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="HashCheck.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CommandLineArgs.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CRC32FileHash.cpp">
@@ -78,6 +78,18 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Window.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Program.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FileStream.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StreamLineReader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StreamLineWriter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

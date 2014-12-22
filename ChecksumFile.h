@@ -1,9 +1,9 @@
 /*
-* FileTree.h
-*
-*  Created on: 2014-11-17
-*      Author: MAC
-*/
+ * ChecksumFile.h
+ *
+ *  Created on: 2014-11-17
+ *      Author: macote
+ */
 
 #ifndef CHECKSUMFILE_H_
 #define CHECKSUMFILE_H_

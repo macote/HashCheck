@@ -7,9 +7,6 @@
 
 #include "HashCheckWindow.h"
 
-#include <windows.h>
-#include <windowsx.h>
-
 LRESULT HashCheckWindow::OnCreate()
 {
 	return 0;
@@ -49,7 +46,7 @@ HashCheckWindow *HashCheckWindow::Create(HINSTANCE hinst)
 {
 	HashCheckWindow *self = new HashCheckWindow(hinst);
 	if (self && self->WinCreateWindow(0,
-		TEXT("Scratch"), WS_OVERLAPPEDWINDOW,
+		L"Scratch", WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
 		NULL, NULL)) {
 		return self;
