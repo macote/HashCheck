@@ -29,7 +29,7 @@ MD5: Colin Plumb (1993) / John Walker (2003)
 
 SHA1: Steve Reid (199?) / ... / Ralph Giles (2002)
 
-FileStream structure and code was inspired from Microsoft C# implementation.
+FileStream code inspired by dotnet/corefx's Win32FileStream.cs.  See FileStream.cpp for licensing information.
 
 
 FAQ

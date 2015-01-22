@@ -291,6 +291,36 @@ int HashCheck::Process()
 	return 0;
 }
 
+int HashCheck::Create() {
+
+	int retval = 0;
+
+	FileStream checksumfile(checksumfilename_.c_str(), FileStream::Create);
+	StreamLineWriter checksumfilewriter(checksumfile);
+
+	ProcessTree(basepath_, checksumfilewriter);
+
+	checksumfilewriter.Close();
+
+	HANDLE hFile = CreateFile(checksumfilename_.c_str(), GENERIC_READ,
+		FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+
+	if (hFile != INVALID_HANDLE_VALUE) {
+		if (IsFileEmpty(hFile)) {
+			CloseHandle(hFile);
+			DeleteFile(checksumfilename_.c_str());
+			retval = -2;
+		}
+		else
+		{
+			CloseHandle(hFile);
+		}
+	}
+
+	return retval;
+
+}
+
 int HashCheck::Verify(LPCWSTR tempFileName) {
 
 	int retval = 0;
@@ -333,36 +363,6 @@ int HashCheck::Verify(LPCWSTR tempFileName) {
 			delete it.second;
 		}
 		files_.clear();
-	}
-
-	return retval;
-
-}
-
-int HashCheck::Create() {
-
-	int retval = 0;
-
-	FileStream checksumfile(checksumfilename_.c_str(), FileStream::Create);
-	StreamLineWriter checksumfilewriter(checksumfile);
-
-	ProcessTree(basepath_, checksumfilewriter);
-
-	checksumfilewriter.Close();
-
-	HANDLE hFile = CreateFile(checksumfilename_.c_str(), GENERIC_READ,
-			FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-
-	if (hFile != INVALID_HANDLE_VALUE) {
-		if (IsFileEmpty(hFile)) {
-			CloseHandle(hFile);
-			DeleteFile(checksumfilename_.c_str());
-			retval = -2;
-		}
-		else
-		{
-			CloseHandle(hFile);
-		}
 	}
 
 	return retval;
@@ -463,17 +463,6 @@ int HashCheck::Update(LPCWSTR tempFileName) {
 	}
 
 	return retval;
-
-}
-
-std::wstring HashCheck::GetAppFileName(LPCWSTR AppTitle) {
-
-	std::wstring Temp = AppTitle;
-
-	int sPos = Temp.rfind(L"\\") + 1;
-	int ePos = Temp.rfind(L".") + 4 - sPos;
-
-	return Temp.substr(sPos, ePos);
 
 }
 
@@ -603,6 +592,17 @@ void HashCheck::ProcessTree(std::wstring sPath, StreamLineWriter& out) {
 		FindClose(hFind);
 
 	}
+
+}
+
+std::wstring HashCheck::GetAppFileName(LPCWSTR AppTitle) {
+
+	std::wstring Temp = AppTitle;
+
+	int sPos = Temp.rfind(L"\\") + 1;
+	int ePos = Temp.rfind(L".") + 4 - sPos;
+
+	return Temp.substr(sPos, ePos);
 
 }
 
