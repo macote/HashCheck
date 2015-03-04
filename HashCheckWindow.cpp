@@ -35,9 +35,9 @@ LRESULT HashCheckWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	return Window::HandleMessage(uMsg, wParam, lParam);
 }
 
-HashCheckWindow *HashCheckWindow::Create(HINSTANCE hInst)
+HashCheckWindow* HashCheckWindow::Create(HINSTANCE hInst)
 {
-	HashCheckWindow *self = new HashCheckWindow(hInst);
+	auto self = new HashCheckWindow(hInst);
 	if (self && self->WinCreateWindow(0, L"Scratch", WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL))
 	{

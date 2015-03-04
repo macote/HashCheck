@@ -36,7 +36,7 @@ void HashFile::Save(const std::wstring& hashfilepath)
 	StreamLineWriter hashfilewriter(hashfile);
 	for (auto& item : files_) 
 	{
-		FileEntry* fileentry = item.second;
+		auto fileentry = item.second;
 		hashfilewriter.WriteLine(fileentry->filepath() + L"|" + LargeIntToString(fileentry->size()) + L"|" + fileentry->digest());
 	}
 }
@@ -56,7 +56,7 @@ std::map<std::wstring, FileEntry*, std::less<std::wstring>>::iterator HashFile::
 
 void HashFile::RemoveFileEntry(const std::wstring& filepath)
 {
-	std::map<std::wstring, FileEntry*, std::less<std::wstring>>::iterator i = FindEntry(filepath);
+	auto i = FindEntry(filepath);
 	if (i != files_.end())
 	{
 		delete (*i).second;
@@ -66,14 +66,14 @@ void HashFile::RemoveFileEntry(const std::wstring& filepath)
 
 bool HashFile::ContainsFileEntry(const std::wstring& filepath)
 {
-	std::map<std::wstring, FileEntry*, std::less<std::wstring>>::iterator i = FindEntry(filepath);
+	auto i = FindEntry(filepath);
 	return i != files_.end();
 }
 
 FileEntry* HashFile::GetFileEntry(const std::wstring& filepath)
 {
 	FileEntry* fileentry = NULL;
-	std::map<std::wstring, FileEntry*, std::less<std::wstring>>::iterator i = FindEntry(filepath);
+	auto i = FindEntry(filepath);
 	if (i != files_.end())
 	{
 		fileentry = (*i).second;

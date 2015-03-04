@@ -21,7 +21,7 @@
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
 	int argscount;
-	LPWSTR* args = CommandLineToArgvW(GetCommandLineW(), &argscount);
+	auto args = CommandLineToArgvW(GetCommandLineW(), &argscount);
 	std::vector<std::wstring> argsvector;
 	for (int i = 0; i < argscount; ++i)
 	{
@@ -47,7 +47,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	//}
 
 	HashCheck hc(argsvector);
-	int result = hc.Process();
+	auto result = hc.Process();
 
 	return result;
 }

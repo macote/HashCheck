@@ -23,7 +23,7 @@ LRESULT CALLBACK Window::WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 	Window *self;
 	if (uMsg == WM_NCCREATE)
 	{
-		LPCREATESTRUCT lpcs = reinterpret_cast<LPCREATESTRUCT>(lParam);
+		auto lpcs = reinterpret_cast<LPCREATESTRUCT>(lParam);
 		self = reinterpret_cast<Window *>(lpcs->lpCreateParams);
 		self->hwnd_ = hwnd;
 		SetWindowLongPtrW(hwnd, GWLP_USERDATA, reinterpret_cast<LPARAM>(self));

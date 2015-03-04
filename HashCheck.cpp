@@ -225,8 +225,8 @@ int HashCheck::Process()
 std::wstring HashCheck::GetAppFileName(LPCWSTR apptitle)
 {
 	std::wstring temp = apptitle;
-	int pos1 = temp.rfind(L"\\") + 1;
-	int pos2 = temp.rfind(L".") + 4 - pos1;
+	auto pos1 = temp.rfind(L"\\") + 1;
+	auto pos2 = temp.rfind(L".") + 4 - pos1;
 	return temp.substr(pos1, pos2);
 }
 
