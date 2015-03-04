@@ -11,20 +11,20 @@
 class HashFileProcessor : public IFileTreeAction
 {
 public:
-	enum Mode
+	enum class Mode
 	{
 		Create,
 		Update,
 		Verify,
-		UndefinedMode
+		Undefined
 	};
-	enum HashType {
+	enum class HashType {
 		CRC32,
 		MD5,
 		SHA1,
-		UndefinedHashType
+		Undefined
 	};
-	enum ProcessResult
+	enum class ProcessResult
 	{
 		FilesAreMissing,
 		NothingToUpdate,

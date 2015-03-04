@@ -4,7 +4,7 @@
 
 void HashFile::Load(const std::wstring& hashfilepath)
 {
-	FileStream hashfile(hashfilepath.c_str(), FileStream::Open);
+	FileStream hashfile(hashfilepath.c_str(), FileStream::Mode::Open);
 	StreamLineReader hashfilereader(hashfile);
 	WCHAR buffer[2048];
 	std::wstring line, key, sizetemp, filepath, digest;

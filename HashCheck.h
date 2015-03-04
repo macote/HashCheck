@@ -20,11 +20,11 @@ public:
 	{
 		Initialize();
 	};
-	enum HashType {
+	enum class HashType {
 		CRC32,
 		MD5,
 		SHA1,
-		UndefinedHashType
+		Undefined
 	};
 	int Process();
 private:

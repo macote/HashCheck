@@ -4,7 +4,7 @@
 
 HashFileProcessor::ProcessResult HashFileProcessor::ProcessTree()
 {
-	auto result = Success;
+	auto result = ProcessResult::Success;
 	newfilesupdated_ = FALSE;
 	if (mode_ == HashFileProcessor::Mode::Verify || mode_ == HashFileProcessor::Mode::Update)
 	{
@@ -14,7 +14,7 @@ HashFileProcessor::ProcessResult HashFileProcessor::ProcessTree()
 		}
 		catch (...)
 		{
-			result = CouldNotOpenHashFile;
+			result = ProcessResult::CouldNotOpenHashFile;
 			return result;
 		}
 	}
@@ -24,11 +24,11 @@ HashFileProcessor::ProcessResult HashFileProcessor::ProcessTree()
 	{
 		if (hashfile_.IsEmpty())
 		{
-			result = NoFileToProcess;
+			result = ProcessResult::NoFileToProcess;
 		}
 		else if (!report_.IsEmpty())
 		{
-			result = ErrorsOccurredWhileProcessing;
+			result = ProcessResult::ErrorsOccurredWhileProcessing;
 		}
 		else
 		{
@@ -41,19 +41,20 @@ HashFileProcessor::ProcessResult HashFileProcessor::ProcessTree()
 		{
 			for (auto& relativefilepath : hashfile_.GetFilePaths())
 			{
+				// TODO: replace hardcoded text
 				report_.AddLine(L"Missing             : " + relativefilepath);
 			}
-			result = FilesAreMissing;
+			result = ProcessResult::FilesAreMissing;
 		}
 		else if (!report_.IsEmpty())
 		{
-			result = ErrorsOccurredWhileProcessing;
+			result = ProcessResult::ErrorsOccurredWhileProcessing;
 		}
 		else if (mode_ == HashFileProcessor::Mode::Update)
 		{
 			if (!newfilesupdated_)
 			{
-				result = NothingToUpdate;
+				result = ProcessResult::NothingToUpdate;
 			}
 			else
 			{
@@ -147,21 +148,21 @@ void HashFileProcessor::ProcessFile(const std::wstring& filepath)
 void HashFileProcessor::CalculateHash(const std::wstring& filepath, std::wstring& digest)
 {
 	FileHash* filehash = NULL;
-	if (hashtype_ == SHA1)
+	if (hashtype_ == HashType::SHA1)
 	{
 		filehash = new SHA1FileHash(filepath);
 	}
-	else if (hashtype_ == MD5)
+	else if (hashtype_ == HashType::MD5)
 	{
 		filehash = new MD5FileHash(filepath);
 	}
-	else if (hashtype_ == CRC32)
+	else if (hashtype_ == HashType::CRC32)
 	{
 		filehash = new CRC32FileHash(filepath);
 	}
 	else
 	{
-		throw std::runtime_error("HashFileProcessor.CalculateHash(): hash type is undefined.");
+		throw std::runtime_error("HashFileProcessor.CalculateHash(): selected hash type is not supported.");
 	}
 	if (filehash != NULL)
 	{

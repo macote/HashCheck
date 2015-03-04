@@ -10,7 +10,7 @@
 class StreamLineWriter
 {
 public:
-	enum Encoding
+	enum class Encoding
 	{
 		UTF8
 	};

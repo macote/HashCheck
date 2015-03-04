@@ -43,7 +43,7 @@ void FileStream::FreeBuffer()
 
 void FileStream::OpenFile()
 {
-	DWORD desiredaccess = (mode_ >= Create) ? GENERIC_WRITE : GENERIC_READ;
+	DWORD desiredaccess = (mode_ >= Mode::Create) ? GENERIC_WRITE : GENERIC_READ;
 	DWORD createdisposition;
 	switch (mode_)
 	{
@@ -58,7 +58,7 @@ void FileStream::OpenFile()
 		break;
 	}
 	DWORD flagsandattributes = FILE_ATTRIBUTE_NORMAL;
-	if (mode_ == OpenNoBuffering)
+	if (mode_ == Mode::OpenNoBuffering)
 	{
 		flagsandattributes |= FILE_FLAG_NO_BUFFERING;
 	}

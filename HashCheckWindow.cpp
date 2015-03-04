@@ -38,11 +38,14 @@ LRESULT HashCheckWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 HashCheckWindow* HashCheckWindow::Create(HINSTANCE hInst)
 {
 	auto self = new HashCheckWindow(hInst);
-	if (self && self->WinCreateWindow(0, L"Scratch", WS_OVERLAPPEDWINDOW,
-		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL))
+	if (self != NULL)
 	{
-		return self;
+		if (self->WinCreateWindow(0, L"HashCheckWindow", WS_OVERLAPPEDWINDOW,
+			CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL))
+		{
+			return self;
+		}
+		delete self;
 	}
-	delete self;
 	return NULL;
 }

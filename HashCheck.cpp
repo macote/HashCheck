@@ -7,7 +7,7 @@ LPCWSTR HashCheck::kHashFileBaseName = L"checksum";
 void HashCheck::Initialize()
 {
 	silent_ = checking_ = updating_ = skipcheck_ = FALSE;
-	hashtype_ = UndefinedHashType;
+	hashtype_ = HashType::Undefined;
 	appfilename_ = GetAppFileName(args_[0].c_str());
 	WIN32_FIND_DATAW findfiledata;
 	HANDLE hFind;
@@ -31,19 +31,19 @@ void HashCheck::Initialize()
 		it = std::find(args_.begin(), args_.end(), L"-sha1");
 		if (it != args_.end())
 		{
-			hashtype_ = SHA1;
+			hashtype_ = HashType::SHA1;
 			args_.erase(it);
 		}
 		it = std::find(args_.begin(), args_.end(), L"-md5");
 		if (it != args_.end())
 		{
-			hashtype_ = MD5;
+			hashtype_ = HashType::MD5;
 			args_.erase(it);
 		}
 		it = std::find(args_.begin(), args_.end(), L"-crc32");
 		if (it != args_.end())
 		{
-			hashtype_ = CRC32;
+			hashtype_ = HashType::CRC32;
 			args_.erase(it);
 		}
 	}
@@ -68,11 +68,11 @@ void HashCheck::Initialize()
 	}
 
 	std::wstring baseFilename = kHashFileBaseName;
-	if (hashtype_ == SHA1)
+	if (hashtype_ == HashType::SHA1)
 		hashfilename_ = baseFilename + L".sha1";
-	else if (hashtype_ == MD5)
+	else if (hashtype_ == HashType::MD5)
 		hashfilename_ = baseFilename + L".md5";
-	else if (hashtype_ == CRC32)
+	else if (hashtype_ == HashType::CRC32)
 		hashfilename_ = baseFilename + L".crc32";
 	else
 	{
@@ -81,7 +81,7 @@ void HashCheck::Initialize()
 		if (hFind != INVALID_HANDLE_VALUE)
 		{
 			FindClose(hFind);
-			hashtype_ = SHA1;
+			hashtype_ = HashType::SHA1;
 		}
 		else
 		{
@@ -90,7 +90,7 @@ void HashCheck::Initialize()
 			if (hFind != INVALID_HANDLE_VALUE)
 			{
 				FindClose(hFind);
-				hashtype_ = MD5;
+				hashtype_ = HashType::MD5;
 			}
 			else
 			{
@@ -99,12 +99,12 @@ void HashCheck::Initialize()
 				if (hFind != INVALID_HANDLE_VALUE)
 				{
 					FindClose(hFind);
-					hashtype_ = CRC32;
+					hashtype_ = HashType::CRC32;
 				}
 				else
 				{
 					hashfilename_ = baseFilename + L".sha1";
-					hashtype_ = SHA1;
+					hashtype_ = HashType::SHA1;
 				}
 			}
 		}
@@ -151,16 +151,16 @@ int HashCheck::Process()
 		mode = HashFileProcessor::Mode::Update;
 	}
 
-	auto hashtype = HashFileProcessor::HashType::UndefinedHashType;
+	auto hashtype = HashFileProcessor::HashType::Undefined;
 	switch (hashtype_)
 	{
-	case HashCheck::CRC32:
+	case HashType::CRC32:
 		hashtype = HashFileProcessor::HashType::CRC32;
 		break;
-	case HashCheck::MD5:
+	case HashType::MD5:
 		hashtype = HashFileProcessor::HashType::MD5;
 		break;
-	case HashCheck::SHA1:
+	case HashType::SHA1:
 		hashtype = HashFileProcessor::HashType::SHA1;
 		break;
 	default:
@@ -170,6 +170,7 @@ int HashCheck::Process()
 	HashFileProcessor hashfileprocessor(mode, hashtype, hashfilename_, appfilename_, basepath_);
 	auto result = hashfileprocessor.ProcessTree();
 	BOOL viewreport = FALSE;
+	int exitcode = 0;
 	switch (result)
 	{
 	case HashFileProcessor::ProcessResult::FilesAreMissing:
@@ -178,18 +179,23 @@ int HashCheck::Process()
 			MessageBoxW(NULL, L"Error: Can't update because files are missing.", L"HashCheck", MB_ICONERROR | MB_SYSTEMMODAL);
 		}
 		viewreport = TRUE;
+		exitcode = -1;
 		break;
 	case HashFileProcessor::ProcessResult::ErrorsOccurredWhileProcessing:
 		viewreport = TRUE;
+		exitcode = -2;
 		break;
 	case HashFileProcessor::ProcessResult::CouldNotOpenHashFile:
 		MessageBoxW(NULL, L"Error: Could not open hash file.", L"HashCheck", MB_ICONERROR | MB_SYSTEMMODAL);
+		exitcode = -3;
 		break;
 	case HashFileProcessor::ProcessResult::NoFileToProcess:
 		MessageBoxW(NULL, L"Error: No file to process.", L"HashCheck", MB_ICONERROR | MB_SYSTEMMODAL);
+		exitcode = -4;
 		break;
 	case HashFileProcessor::ProcessResult::NothingToUpdate:
 		MessageBoxW(NULL, L"Error: Nothing to update.", L"HashCheck", MB_ICONERROR | MB_SYSTEMMODAL);
+		exitcode = -5;
 		break;
 	case HashFileProcessor::ProcessResult::Success:
 		if (checking_)
@@ -219,7 +225,7 @@ int HashCheck::Process()
 		ViewReport(tempfile);
 	}
 
-	return 0;
+	return exitcode;
 }
 
 std::wstring HashCheck::GetAppFileName(LPCWSTR apptitle)

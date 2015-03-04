@@ -12,7 +12,7 @@ class StreamLineReader
 private:
 	static const DWORD kDefaultBufferSize = 32768;
 public:
-	enum Encoding
+	enum class Encoding
 	{
 		UTF8
 	};
