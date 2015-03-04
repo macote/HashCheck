@@ -1,9 +1,4 @@
-/*
-* Window.h
-*
-*  Created on: 2014-11-19
-*      Author: MAC
-*/
+/* Author: macote */
 
 #ifndef WINDOW_H_
 #define WINDOW_H_
@@ -21,7 +16,7 @@ protected:
 	virtual LPCWSTR ClassName() = 0;
 	virtual BOOL WinRegisterClass(WNDCLASS *pwc)
 	{
-		return RegisterClass(pwc);
+		return RegisterClassW(pwc);
 	}
 	virtual ~Window() { }
 	HWND WinCreateWindow(DWORD dwExStyle, LPCWSTR pszName,
@@ -29,7 +24,7 @@ protected:
 		HWND hwndParent, HMENU hmenu)
 	{
 		Register();
-		return CreateWindowEx(dwExStyle, ClassName(), pszName, dwStyle,
+		return CreateWindowExW(dwExStyle, ClassName(), pszName, dwStyle,
 			x, y, cx, cy, hwndParent, hmenu, hinst_, this);
 	}
 	HWND hwnd_;

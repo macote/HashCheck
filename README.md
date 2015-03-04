@@ -7,9 +7,9 @@ HashCheck is a Windows application that creates and verifies file checksums.
 How to build
 ------------
 
-This project was created with:
-- Eclipse Luna with CDT
-- MinGW (GCC 4.8.1)
+This project is compatible with:
+- Visual Studio 2013
+- Eclipse Luna CDT with MinGW (GCC 4.8.1)
 
 
 Usage
@@ -43,3 +43,6 @@ I wanted to have an executable having the least runtime dependencies possible.
 
 MinGW's fstream can't open WCHAR filenames and I was not interested in changing fstream's implementation.
 
+### What's the coding style?
+
+The coding style is inspired from Google C++ [coding style guide](http://google-styleguide.googlecode.com/svn/trunk/cppguide.html "Google C++ Style Guide").

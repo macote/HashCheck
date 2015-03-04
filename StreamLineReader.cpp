@@ -1,9 +1,4 @@
-/*
-* StreamLineReader.cpp
-*
-*  Created on: 2014-12-11
-*      Author: MAC
-*/
+/* Author: macote */
 
 #include "StreamLineReader.h"
 

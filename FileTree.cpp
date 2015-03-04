@@ -1,37 +1,32 @@
-/*
-* FileTree.cpp
-*
-*  Created on: 2014-11-17
-*      Author: MAC
-*/
+/* Author: macote */
 
 #include "FileTree.h"
 
 void FileTree::ProcessTree(const std::wstring path)
 {
-	WIN32_FIND_DATA FindFileData;
+	WIN32_FIND_DATAW findfiledata;
 	HANDLE hFind;
 	std::wstring pattern = path + L"*";
-	hFind = FindFirstFile(pattern.c_str(), &FindFileData);
+	hFind = FindFirstFileW(pattern.c_str(), &findfiledata);
 	if (hFind != INVALID_HANDLE_VALUE)
 	{
 		do 
 		{
-			if (FindFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) 
+			if (findfiledata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) 
 			{
-				if (lstrcmp(FindFileData.cFileName, L".") != 0 && lstrcmp(FindFileData.cFileName, L"..") != 0) 
+				if (lstrcmpW(findfiledata.cFileName, L".") != 0 && lstrcmpW(findfiledata.cFileName, L"..") != 0) 
 				{
 					std::wstring currentpath;
-					currentpath = path + FindFileData.cFileName + L"\\";
+					currentpath = path + findfiledata.cFileName + L"\\";
 					ProcessTree(currentpath);
 				}
 			}
 			else
 			{
-				std::wstring currentfile(path + FindFileData.cFileName);
-				fileaction_->Process(currentfile);
+				std::wstring currentfile(path + findfiledata.cFileName);
+				fileaction_.ProcessFile(currentfile);
 			}
-		} while (FindNextFile(hFind, &FindFileData));
+		} while (FindNextFileW(hFind, &findfiledata));
 		FindClose(hFind);
 	}
 }

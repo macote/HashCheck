@@ -1,14 +1,11 @@
-/*
-* StreamLineWriter.h
-*
-*  Created on: 2014-12-17
-*      Author: MAC
-*/
+/* Author: macote */
 
 #ifndef STREAMLINEWRITER_H_
 #define STREAMLINEWRITER_H_
 
 #include "FileStream.h"
+#include <string>
+#include <Windows.h>
 
 class StreamLineWriter
 {

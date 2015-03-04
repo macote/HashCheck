@@ -1,14 +1,11 @@
-/*
- * SHA1FileHash.h
- *
- *  Created on: 2014-10-23
- *      Author: MAC
- */
+/* Author: macote */
 
 #ifndef SHA1FILEHASH_H_
 #define SHA1FILEHASH_H_
 
 #include "FileHash.h"
+#include <iomanip>
+#include <sstream>
 #include <string>
 #include <Windows.h>
 
@@ -22,9 +19,9 @@ struct SHA1Context
 class SHA1FileHash : public FileHash
 {
 public:
-#if defined(_MSC_VER) && _MSC_VER < 1900
-	SHA1FileHash(const std::wstring &filepath, const DWORD buffersize) : FileHash(filepath, buffersize) { };
-	SHA1FileHash(const std::wstring &filepath) : FileHash(filepath) { };
+#if _MSC_VER < 1900
+	SHA1FileHash(const std::wstring& filepath, const DWORD buffersize) : FileHash(filepath, buffersize) { };
+	SHA1FileHash(const std::wstring& filepath) : FileHash(filepath) { };
 #else
 	using FileHash::FileHash;
 #endif

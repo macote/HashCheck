@@ -1,16 +1,12 @@
-/*
-* FileStream.h
-*
-*  Created on: 2014-12-05
-*      Author: MAC
-*/
+/* Author: macote */
 
 #ifndef FILESTREAM_H_
 #define FILESTREAM_H_
 
-#include <stdio.h>
-#include <string>
+#include <iomanip>
+#include <sstream>
 #include <stdexcept>
+#include <string>
 #include <Windows.h>
 
 class FileStream
@@ -26,8 +22,8 @@ public:
 		Truncate,
 		Append
 	};
-	FileStream(const std::wstring &filepath, Mode mode) : FileStream(filepath, mode, kDefaultBufferSize) { };
-	FileStream(const std::wstring &filepath, Mode mode, const DWORD buffersize) : filepath_(filepath), mode_(mode), buffersize_(buffersize)
+	FileStream(const std::wstring& filepath, Mode mode) : FileStream(filepath, mode, kDefaultBufferSize) { };
+	FileStream(const std::wstring& filepath, Mode mode, const DWORD buffersize) : filepath_(filepath), mode_(mode), buffersize_(buffersize)
 	{
 		AllocateBuffer();
 		OpenFile();

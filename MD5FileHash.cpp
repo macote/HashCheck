@@ -1,9 +1,4 @@
-/*
- * MD5FileHash.cpp
- *
- *  Created on: 2014-10-22
- *      Author: MAC
- */
+/* Author: macote */
 
 #include "MD5FileHash.h"
 
@@ -89,16 +84,13 @@ void MD5FileHash::Finalize()
 
 void MD5FileHash::ConvertHashToDigestString()
 {
-	WCHAR charbuffer[3];
-	for(UINT i = 0; i < sizeof(hash_); i++)
+	std::wstringstream wss;
+	wss << std::hex << std::setw(2) << std::setfill(L'0') << std::uppercase;
+	for (UINT i = 0; i < sizeof(hash_); i++)
 	{
-#ifdef _MSC_VER
-		swprintf_s(charbuffer, 3, L"%02X", hash_[i]);
-#else
-		_snwprintf(charbuffer, 3, L"%02X", hash_[i]);
-#endif
-		digest_.append(charbuffer);
+		wss << hash_[i];
 	}
+	digest_.append(wss.str());
 }
 
 void MD5FileHash::Transform(UINT32 state[4], PUINT32 buffer)

@@ -1,9 +1,4 @@
-/*
-* StreamLineWriter.cpp
-*
-*  Created on: 2014-12-17
-*      Author: MAC
-*/
+/* Author: macote */
 
 #include "StreamLineWriter.h"
 

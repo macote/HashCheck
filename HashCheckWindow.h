@@ -1,15 +1,9 @@
-/*
-* HashCheckWindow.h
-*
-*  Created on: 2014-11-19
-*      Author: MAC
-*/
+/* Author: macote */
 
 #ifndef HASHCHECKWINDOW_H_
 #define HASHCHECKWINDOW_H_
 
 #include "Window.h"
-
 #include <Windows.h>
 #include <windowsx.h>
 
@@ -22,7 +16,7 @@ public:
 	using Window::Window;
 #endif	
 	virtual LPCWSTR ClassName() { return L"HashCheckWindow"; }
-	static HashCheckWindow *Create(HINSTANCE hinst);
+	static HashCheckWindow *Create(HINSTANCE hInst);
 protected:
 	LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 	LRESULT OnCreate();

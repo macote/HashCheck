@@ -1,13 +1,5 @@
-/*
-* FileStream.cpp
-*
-*  Created on: 2014-12-05
-*      Author: MAC
-*
-*  Portions of this code was inspired by dotnet/corefx's Win32FileStream.cs
-*
-*/
-
+/* Author: macote */
+/* Portions of this code was inspired by dotnet/corefx's Win32FileStream.cs */
 /*
 
 The MIT License (MIT)
@@ -55,10 +47,10 @@ void FileStream::OpenFile()
 	DWORD createdisposition;
 	switch (mode_)
 	{
-	case FileStream::Create:
+	case FileStream::Mode::Create:
 		createdisposition = CREATE_NEW;
 		break;
-	case FileStream::Truncate:
+	case FileStream::Mode::Truncate:
 		createdisposition = CREATE_ALWAYS;
 		break;
 	default:
@@ -70,20 +62,15 @@ void FileStream::OpenFile()
 	{
 		flagsandattributes |= FILE_FLAG_NO_BUFFERING;
 	}
-	filehandle_ = CreateFile(filepath_.c_str(), desiredaccess, FILE_SHARE_READ,
+	filehandle_ = CreateFileW(filepath_.c_str(), desiredaccess, FILE_SHARE_READ,
 		NULL, createdisposition, flagsandattributes, NULL);
 	if (filehandle_ == INVALID_HANDLE_VALUE)
 	{
-		lasterror_ = GetLastError();
-		std::string msg = "FileStream.Open(CreateFile()) failed with error ";
-		char errnum[24];
-#ifdef _MSC_VER
-		sprintf_s(errnum, 24, "0x%08X.", lasterror_);
-#else
-		_snprintf(errnum, 24, "0x%08X.", lasterror_);
-#endif
-		msg.append(errnum);
-		throw std::runtime_error(msg.c_str());
+		std::stringstream ss;
+		ss << "FileStream.Open(CreateFileW()) failed with error ";
+		ss << "0x" << std::hex << std::setw(8) << std::setfill('0') << std::uppercase;
+		ss << GetLastError();
+		throw std::runtime_error(ss.str());
 	}
 }
 

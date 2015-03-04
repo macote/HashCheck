@@ -79,14 +79,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="ChecksumFile.h" />
     <ClInclude Include="CRC32FileHash.h" />
     <ClInclude Include="FileHash.h" />
     <ClInclude Include="FileStream.h" />
     <ClInclude Include="FileTree.h" />
     <ClInclude Include="HashCheck.h" />
     <ClInclude Include="HashCheckWindow.h" />
+    <ClInclude Include="HashFile.h" />
+    <ClInclude Include="HashFileProcessor.h" />
     <ClInclude Include="MD5FileHash.h" />
+    <ClInclude Include="Report.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="SHA1FileHash.h" />
     <ClInclude Include="StreamLineReader.h" />
@@ -100,6 +102,8 @@
     <ClCompile Include="FileTree.cpp" />
     <ClCompile Include="HashCheck.cpp" />
     <ClCompile Include="HashCheckWindow.cpp" />
+    <ClCompile Include="HashFile.cpp" />
+    <ClCompile Include="HashFileProcessor.cpp" />
     <ClCompile Include="MD5FileHash.cpp" />
     <ClCompile Include="Program.cpp" />
     <ClCompile Include="SHA1FileHash.cpp" />

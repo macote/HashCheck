@@ -1,14 +1,11 @@
-/*
-* StreamLineReader.h
-*
-*  Created on: 2014-12-11
-*      Author: MAC
-*/
+/* Author: macote */
 
 #ifndef STREAMLINEREADER_H_
 #define STREAMLINEREADER_H_
 
 #include "FileStream.h"
+#include <string>
+#include <Windows.h>
 
 class StreamLineReader
 {

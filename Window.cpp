@@ -1,9 +1,4 @@
-/*
-* Window.cpp
-*
-*  Created on: 2014-11-19
-*      Author: MAC
-*/
+/* Author: macote */
 
 #include "Window.h"
 
@@ -16,7 +11,7 @@ void Window::Register()
 	wc.cbWndExtra = 0;
 	wc.hInstance = hinst_;
 	wc.hIcon = NULL;
-	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+	wc.hCursor = LoadCursorW(NULL, IDC_ARROW);
 	wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
 	wc.lpszMenuName = NULL;
 	wc.lpszClassName = ClassName();
@@ -31,11 +26,11 @@ LRESULT CALLBACK Window::WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 		LPCREATESTRUCT lpcs = reinterpret_cast<LPCREATESTRUCT>(lParam);
 		self = reinterpret_cast<Window *>(lpcs->lpCreateParams);
 		self->hwnd_ = hwnd;
-		SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LPARAM>(self));
+		SetWindowLongPtrW(hwnd, GWLP_USERDATA, reinterpret_cast<LPARAM>(self));
 	}
 	else
 	{
-		self = reinterpret_cast<Window *>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+		self = reinterpret_cast<Window *>(GetWindowLongPtrW(hwnd, GWLP_USERDATA));
 	}
 	if (self)
 	{
@@ -43,7 +38,7 @@ LRESULT CALLBACK Window::WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 	}
 	else
 	{
-		return DefWindowProc(hwnd, uMsg, wParam, lParam);
+		return DefWindowProcW(hwnd, uMsg, wParam, lParam);
 	}
 }
 
@@ -53,8 +48,8 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	switch (uMsg)
 	{
 		case WM_NCDESTROY:
-			lres = DefWindowProc(hwnd_, uMsg, wParam, lParam);
-			SetWindowLongPtr(hwnd_, GWLP_USERDATA, 0);
+			lres = DefWindowProcW(hwnd_, uMsg, wParam, lParam);
+			SetWindowLongPtrW(hwnd_, GWLP_USERDATA, 0);
 			delete this;
 			return lres;
 		case WM_PAINT:
@@ -64,7 +59,7 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			OnPrintClient(reinterpret_cast<HDC>(wParam));
 			return 0;
 	}
-	return DefWindowProc(hwnd_, uMsg, wParam, lParam);
+	return DefWindowProcW(hwnd_, uMsg, wParam, lParam);
 }
 
 void Window::OnPaint()

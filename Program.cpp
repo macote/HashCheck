@@ -1,18 +1,18 @@
-/*
-* Program.cpp
-*
-*  Created on: 2014-11-27
-*      Author: macote
-*/
+/* Author: macote */
+
+#ifndef UNICODE
+#define UNICODE
+#endif
+#ifndef _UNICODE
+#define _UNICODE
+#endif
 
 #define WIN32_LEAN_AND_MEAN
 
 #include "HashCheck.h"
 #include "HashCheckWindow.h"
-
 #include <string>
 #include <vector>
-
 #include <Windows.h>
 #include <Ole2.h>
 #include <CommCtrl.h>

@@ -1,9 +1,4 @@
-/*
- * CRC32FileHash.cpp
- *
- *  Created on: 2014-10-20
- *      Author: MAC
- */
+/* Author: macote */
 
 #include "CRC32FileHash.h"
 
@@ -98,11 +93,7 @@ void CRC32FileHash::Finalize()
 
 void CRC32FileHash::ConvertHashToDigestString()
 {
-	WCHAR charbuffer[9];
-#ifdef _MSC_VER
-	swprintf_s(charbuffer, 9, L"%08X", hash_);
-#else
-	_snwprintf(charbuffer, 9, L"%08X", hash_);
-#endif
-	digest_.append(charbuffer);
+	std::wstringstream wss;
+	wss << std::hex << std::setw(8) << std::setfill(L'0') << std::uppercase << hash_;
+	digest_.append(wss.str());
 }

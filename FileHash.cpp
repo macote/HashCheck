@@ -1,9 +1,4 @@
-/*
- * FileHash.cpp
- *
- *  Created on: 2014-10-20
- *      Author: MAC
- */
+/* Author: macote */
 
 #include "FileHash.h"
 

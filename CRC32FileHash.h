@@ -1,14 +1,11 @@
-/*
- * CRC32FileHash.h
- *
- *  Created on: 2014-10-20
- *      Author: macote
- */
+/* Author: macote */
 
 #ifndef CRC32FILEHASH_H_
 #define CRC32FILEHASH_H_
 
 #include "FileHash.h"
+#include <iomanip>
+#include <sstream>
 #include <string>
 #include <Windows.h>
 
@@ -16,8 +13,8 @@ class CRC32FileHash : public FileHash
 {
 public:
 #if _MSC_VER < 1900
-	CRC32FileHash(const std::wstring &filepath, const DWORD buffersize) : FileHash(filepath, buffersize) { };
-	CRC32FileHash(const std::wstring &filepath) : FileHash(filepath) { };
+	CRC32FileHash(const std::wstring& filepath, const DWORD buffersize) : FileHash(filepath, buffersize) { };
+	CRC32FileHash(const std::wstring& filepath) : FileHash(filepath) { };
 #else
 	using FileHash::FileHash;
 #endif

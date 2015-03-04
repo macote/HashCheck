@@ -1,14 +1,11 @@
-/*
- * MD5FileHash.h
- *
- *  Created on: 2014-10-22
- *      Author: MAC
- */
+/* Author: macote */
 
 #ifndef MD5FILEHASH_H_
 #define MD5FILEHASH_H_
 
 #include "FileHash.h"
+#include <iomanip>
+#include <sstream>
 #include <string>
 #include <Windows.h>
 
@@ -23,8 +20,8 @@ class MD5FileHash : public FileHash
 {
 public:
 #if _MSC_VER < 1900
-	MD5FileHash(const std::wstring &filepath, const DWORD buffersize) : FileHash(filepath, buffersize) { };
-	MD5FileHash(const std::wstring &filepath) : FileHash(filepath) { };
+	MD5FileHash(const std::wstring& filepath, const DWORD buffersize) : FileHash(filepath, buffersize) { };
+	MD5FileHash(const std::wstring& filepath) : FileHash(filepath) { };
 #else
 	using FileHash::FileHash;
 #endif
