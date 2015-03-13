@@ -71,14 +71,14 @@ void HashFileProcessor::ProcessFile(const std::wstring& filepath)
 {
 	if (lstrcmpiW(appfilepath_.c_str(), filepath.c_str()) == 0 || lstrcmpiW(hashfilename_.c_str(), filepath.c_str()) == 0)
 	{
-		// skip self
+		// skip self and current hash file
 		return;
 	}
 	auto relativefilepath = filepath.substr(basepath_.length(), filepath.length());
-	auto fileentry = hashfile_.GetFileEntry(relativefilepath);
+	const FileEntry& fileentry = hashfile_.GetFileEntry(relativefilepath);
 	if (mode_ == HashFileProcessor::Mode::Verify)
 	{
-		if (fileentry == NULL)
+		if (&fileentry == &HashFile::kFileEntryNull)
 		{
 			report_.AddLine(L"Unknown             : " + relativefilepath);
 			return;
@@ -86,9 +86,9 @@ void HashFileProcessor::ProcessFile(const std::wstring& filepath)
 	}
 	else if (mode_ == HashFileProcessor::Mode::Update)
 	{
-		if (fileentry != NULL)
+		if (&fileentry == &HashFile::kFileEntryNull)
 		{
-			newhashfile_.AddFileEntry(fileentry->filepath(), fileentry->size(), fileentry->digest());
+			newhashfile_.AddFileEntry(fileentry.filepath(), fileentry.size(), fileentry.digest());
 			hashfile_.RemoveFileEntry(relativefilepath);
 			return;
 		}
@@ -113,15 +113,16 @@ void HashFileProcessor::ProcessFile(const std::wstring& filepath)
 	}
 	if (mode_ == HashFileProcessor::Mode::Verify)
 	{
-		if (size.QuadPart != fileentry->size().QuadPart)
+		if (size.QuadPart != fileentry.size().QuadPart)
 		{
 			report_.AddLine(L"Incorrect file size : " + relativefilepath);
 			hashfile_.RemoveFileEntry(relativefilepath);
 			return;
 		}
 	}
-	std::wstring digest;
-	CalculateHash(filepath, digest);
+	auto filehash = FileHashFactory::Create(hashtype_, filepath);
+	filehash->Compute();
+	std::wstring digest = filehash->digest();
 	if (mode_ == HashFileProcessor::Mode::Create)
 	{
 		hashfile_.AddFileEntry(relativefilepath, size, digest);
@@ -133,41 +134,14 @@ void HashFileProcessor::ProcessFile(const std::wstring& filepath)
 	}
 	else if (mode_ == HashFileProcessor::Mode::Verify)
 	{
-		if (size.QuadPart != fileentry->size().QuadPart)
+		if (size.QuadPart != fileentry.size().QuadPart)
 		{
 			report_.AddLine(L"Incorrect file size : " + relativefilepath);
 		}
-		else if (digest != fileentry->digest())
+		else if (digest != fileentry.digest())
 		{
 			report_.AddLine(L"Incorrect hash      : " + relativefilepath);
 		}
 		hashfile_.RemoveFileEntry(relativefilepath);
-	}
-}
-
-void HashFileProcessor::CalculateHash(const std::wstring& filepath, std::wstring& digest)
-{
-	FileHash* filehash = NULL;
-	if (hashtype_ == HashType::SHA1)
-	{
-		filehash = new SHA1FileHash(filepath);
-	}
-	else if (hashtype_ == HashType::MD5)
-	{
-		filehash = new MD5FileHash(filepath);
-	}
-	else if (hashtype_ == HashType::CRC32)
-	{
-		filehash = new CRC32FileHash(filepath);
-	}
-	else
-	{
-		throw std::runtime_error("HashFileProcessor.CalculateHash(): selected hash type is not supported.");
-	}
-	if (filehash != NULL)
-	{
-		filehash->Compute();
-		digest = filehash->digest();
-		delete filehash;
 	}
 }

@@ -2,6 +2,8 @@
 
 #include "HashFile.h"
 
+const FileEntry HashFile::kFileEntryNull = FileEntry(L"", LARGE_INTEGER(), L"");
+
 void HashFile::Load(const std::wstring& hashfilepath)
 {
 	FileStream hashfile(hashfilepath.c_str(), FileStream::Mode::Open);
@@ -25,28 +27,28 @@ void HashFile::Load(const std::wstring& hashfilepath)
 			std::wstringstream wss(sizetemp);
 			wss >> size.QuadPart;
 			digest = line.substr(pos2 + 1, line.size() - pos2);
-			files_.insert(std::pair<std::wstring, FileEntry*>(key, new FileEntry(filepath, size, digest)));
+			files_.insert(std::pair<std::wstring, FileEntry>(key, FileEntry(filepath, size, digest)));
 		}
 	} while (!hashfilereader.EndOfStream());
 }
 
-void HashFile::Save(const std::wstring& hashfilepath)
+void HashFile::Save(const std::wstring& hashfilepath) const
 {
 	FileStream hashfile(hashfilepath, FileStream::Mode::Create);
 	StreamLineWriter hashfilewriter(hashfile);
 	for (auto& item : files_) 
 	{
 		auto fileentry = item.second;
-		hashfilewriter.WriteLine(fileentry->filepath() + L"|" + LargeIntToString(fileentry->size()) + L"|" + fileentry->digest());
+		hashfilewriter.WriteLine(fileentry.filepath() + L"|" + LargeIntToString(fileentry.size()) + L"|" + fileentry.digest());
 	}
 }
 
 void HashFile::AddFileEntry(const std::wstring filepath, const LARGE_INTEGER size, const std::wstring digest)
 {
-	files_.insert(std::pair<std::wstring, FileEntry*>(filepath, new FileEntry(filepath, size, digest)));
+	files_.insert(std::pair<std::wstring, FileEntry>(filepath, FileEntry(filepath, size, digest)));
 }
 
-std::map<std::wstring, FileEntry*, std::less<std::wstring>>::iterator HashFile::FindEntry(const std::wstring& filepath)
+std::map<std::wstring, FileEntry, std::less<std::wstring>>::const_iterator HashFile::FindEntry(const std::wstring& filepath) const
 {
 	WCHAR key[2048];
 	lstrcpyW(key, filepath.c_str());
@@ -59,39 +61,40 @@ void HashFile::RemoveFileEntry(const std::wstring& filepath)
 	auto i = FindEntry(filepath);
 	if (i != files_.end())
 	{
-		delete (*i).second;
 		files_.erase(i);
 	}
 }
 
-bool HashFile::ContainsFileEntry(const std::wstring& filepath)
+BOOL HashFile::ContainsFileEntry(const std::wstring& filepath) const
 {
 	auto i = FindEntry(filepath);
 	return i != files_.end();
 }
 
-FileEntry* HashFile::GetFileEntry(const std::wstring& filepath)
+const FileEntry& HashFile::GetFileEntry(const std::wstring& filepath) const
 {
-	FileEntry* fileentry = NULL;
 	auto i = FindEntry(filepath);
 	if (i != files_.end())
 	{
-		fileentry = (*i).second;
+		return (*i).second;
 	}
-	return fileentry;
+	else
+	{
+		return kFileEntryNull;
+	}
 }
 
-std::list<std::wstring> HashFile::GetFilePaths()
+std::list<std::wstring> HashFile::GetFilePaths() const
 {
 	std::list<std::wstring> filepaths;
 	for (auto& item : files_)
 	{
-		filepaths.push_back(item.second->filepath());
+		filepaths.push_back(item.second.filepath());
 	}
 	return filepaths;
 }
 
-BOOL HashFile::IsValidHashLine(const std::wstring& fileentryline)
+BOOL HashFile::IsValidHashLine(const std::wstring& fileentryline) const
 {
 	if (fileentryline.size() == 0) return FALSE;
 	if (fileentryline.size() > 2176) return FALSE;
@@ -99,17 +102,9 @@ BOOL HashFile::IsValidHashLine(const std::wstring& fileentryline)
 	return TRUE;
 }
 
-std::wstring HashFile::LargeIntToString(const LARGE_INTEGER& li) {
+std::wstring HashFile::LargeIntToString(const LARGE_INTEGER& li) const
+{
 	std::wstringstream wss;
 	wss << li.QuadPart;
 	return wss.str();
-}
-
-void HashFile::Clear()
-{
-	for (auto& item : files_)
-	{
-		delete item.second;
-	}
-	files_.clear();
 }

@@ -7,14 +7,14 @@
 #include <string>
 #include <Windows.h>
 
-class FileHash : public FileStream
+class FileHash
 {
 private:
 	static const DWORD kDefaultBufferSize = 32768;
 public:
 	FileHash(const std::wstring& filepath) : FileHash(filepath, kDefaultBufferSize) { };
 	FileHash(const std::wstring& filepath, const DWORD buffersize) 
-		: FileStream(filepath, FileStream::Mode::OpenNoBuffering, buffersize), buffersize_(buffersize)
+		: buffersize_(buffersize), filestream_(FileStream(filepath, FileStream::Mode::OpenNoBuffering, buffersize))
 	{
 		AllocateBuffer();
 	}
@@ -26,7 +26,7 @@ public:
 	std::wstring digest() const { return digest_; }
 protected:
 	virtual void Initialize() = 0;
-	virtual void Update(UINT32 bytes) = 0;
+	virtual void Update(const UINT32 bytes) = 0;
 	virtual void Finalize() = 0;
 	virtual void ConvertHashToDigestString() = 0;
 	PBYTE buffer_ = NULL;
@@ -35,6 +35,7 @@ private:
 	void AllocateBuffer();
 	void FreeBuffer();
 	DWORD buffersize_;
+	FileStream filestream_;
 };
 
 #endif /* FILEHASH_H_ */

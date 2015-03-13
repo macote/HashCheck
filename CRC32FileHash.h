@@ -20,7 +20,7 @@ public:
 #endif
 private:
 	void Initialize();
-	void Update(UINT32 bytecount);
+	void Update(const UINT32 bytecount);
 	void Finalize();
 	void ConvertHashToDigestString();
 	const static UINT32 kCRC32Table[];

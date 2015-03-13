@@ -29,26 +29,27 @@ private:
 class HashFile
 {
 public:
+	static const FileEntry kFileEntryNull;
+public:
 	HashFile() { };
 	~HashFile()
 	{
-		Clear();
+		files_.clear();
 	}
-	void Save(const std::wstring& hashfilepath);
+	void Save(const std::wstring& hashfilepath) const;
 	void Load(const std::wstring& hashfilepath);
 	void AddFileEntry(const std::wstring filepath, const LARGE_INTEGER li, const std::wstring digest);
 	void RemoveFileEntry(const std::wstring& filepath);
-	bool IsEmpty() const { return files_.size() == 0; }
-	bool ContainsFileEntry(const std::wstring& filepath);
-	FileEntry* GetFileEntry(const std::wstring& filepath);
-	std::list<std::wstring> GetFilePaths();
+	BOOL IsEmpty() const { return files_.size() == 0; }
+	BOOL ContainsFileEntry(const std::wstring& filepath) const;
+	const FileEntry& GetFileEntry(const std::wstring& filepath) const;
+	std::list<std::wstring> GetFilePaths() const;
 private:
-	std::map<std::wstring, FileEntry*, std::less<std::wstring>>::iterator FindEntry(const std::wstring& filepath);
-	BOOL IsValidHashLine(const std::wstring& fileentryline);
-	std::wstring LargeIntToString(const LARGE_INTEGER& li);
-	void Clear();
+	std::map<std::wstring, FileEntry, std::less<std::wstring>>::const_iterator FindEntry(const std::wstring& filepath) const;
+	BOOL IsValidHashLine(const std::wstring& fileentryline) const;
+	std::wstring LargeIntToString(const LARGE_INTEGER& li) const;
 private:
-	std::map<std::wstring, FileEntry*, std::less<std::wstring>> files_;
+	std::map<std::wstring, FileEntry, std::less<std::wstring>> files_;
 };
 
 #endif /* HASHFILE_H_ */

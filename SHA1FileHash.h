@@ -27,7 +27,7 @@ public:
 #endif
 private:
 	void Initialize();
-	void Update(UINT32 bytecount);
+	void Update(const UINT32 bytecount);
 	void Finalize();
 	void Transform(UINT32 state[5], PUINT32 buffer);
 	void ConvertHashToDigestString();

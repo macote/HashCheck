@@ -47,17 +47,17 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	LRESULT lres;
 	switch (uMsg)
 	{
-		case WM_NCDESTROY:
-			lres = DefWindowProcW(hwnd_, uMsg, wParam, lParam);
-			SetWindowLongPtrW(hwnd_, GWLP_USERDATA, 0);
-			delete this;
-			return lres;
-		case WM_PAINT:
-			OnPaint();
-			return 0;
-		case WM_PRINTCLIENT:
-			OnPrintClient(reinterpret_cast<HDC>(wParam));
-			return 0;
+	case WM_NCDESTROY:
+		lres = DefWindowProcW(hwnd_, uMsg, wParam, lParam);
+		SetWindowLongPtrW(hwnd_, GWLP_USERDATA, 0);
+		delete this;
+		return lres;
+	case WM_PAINT:
+		OnPaint();
+		return 0;
+	case WM_PRINTCLIENT:
+		OnPrintClient(reinterpret_cast<HDC>(wParam));
+		return 0;
 	}
 	return DefWindowProcW(hwnd_, uMsg, wParam, lParam);
 }

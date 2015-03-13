@@ -19,9 +19,8 @@ protected:
 		return RegisterClassW(pwc);
 	}
 	virtual ~Window() { }
-	HWND WinCreateWindow(DWORD dwExStyle, LPCWSTR pszName,
-		DWORD dwStyle, int x, int y, int cx, int cy,
-		HWND hwndParent, HMENU hmenu)
+	HWND WinCreateWindow(DWORD dwExStyle, LPCWSTR pszName, DWORD dwStyle, 
+		int x, int y, int cx, int cy, HWND hwndParent, HMENU hmenu)
 	{
 		Register();
 		return CreateWindowExW(dwExStyle, ClassName(), pszName, dwStyle,

@@ -12,8 +12,8 @@
 class Report
 {
 public:
-	void AddLine(const std::wstring& line) { report_.push_back(line); };
-	void Save(const std::wstring& reportpath)
+	void AddLine(const std::wstring line) { report_.push_back(line); };
+	void Save(const std::wstring& reportpath) const
 	{
 		FileStream reportfile(reportpath, FileStream::Mode::Truncate);
 		StreamLineWriter reportfilewriter(reportfile);
@@ -22,7 +22,7 @@ public:
 			reportfilewriter.WriteLine(item);
 		}
 	};
-	bool IsEmpty() { return report_.size() == 0; }
+	BOOL IsEmpty() { return report_.size() == 0; }
 private:
 	std::list<std::wstring> report_;
 };

@@ -21,7 +21,7 @@ void FileHash::Compute()
 	DWORD bytesread = 0;
 	do
 	{
-		bytesread = Read(buffer_, buffersize_);
+		bytesread = filestream_.Read(buffer_, buffersize_);
 		if (bytesread > 0)
 		{
 			Update(bytesread);

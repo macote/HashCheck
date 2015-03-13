@@ -17,12 +17,12 @@ class FileTree
 {
 public:
 	FileTree(const std::wstring basepath, IFileTreeAction& fileaction) : basepath_(basepath), fileaction_(fileaction) { };
-	void Process()
+	void Process() const 
 	{
 		ProcessTree(basepath_);
 	}
 private:
-	void ProcessTree(const std::wstring path);
+	void ProcessTree(const std::wstring& path) const;
 	const std::wstring basepath_;
 	IFileTreeAction& fileaction_;
 };

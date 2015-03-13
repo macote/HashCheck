@@ -75,14 +75,15 @@ void CRC32FileHash::Initialize()
 	hash_ = ~hash_;
 }
 
-void CRC32FileHash::Update(UINT32 bytecount)
+void CRC32FileHash::Update(const UINT32 bytecount)
 {
 	PBYTE buffer = buffer_;
-	while (bytecount > 0)
+	UINT32 bytesleft = bytecount;
+	while (bytesleft > 0)
 	{
 		hash_ = kCRC32Table[(hash_ ^ *buffer) & 0xFF] ^ (hash_ >> 8);
 		++buffer;
-		--bytecount;
+		--bytesleft;
 	}
 }
 

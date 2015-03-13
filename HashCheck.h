@@ -5,6 +5,7 @@
 
 #define _CRT_SECURE_NO_WARNINGS
 
+#include "HashType.h"
 #include "HashFileProcessor.h"
 #include <vector>
 #include <string>
@@ -20,17 +21,11 @@ public:
 	{
 		Initialize();
 	};
-	enum class HashType {
-		CRC32,
-		MD5,
-		SHA1,
-		Undefined
-	};
-	int Process();
+	int Process() const;
 private:
 	void Initialize();
-	std::wstring GetAppFileName(LPCWSTR apptitle);
-	BOOL ViewReport(LPWSTR filepath);
+	std::wstring GetAppFileName(LPCWSTR apptitle) const;
+	BOOL ViewReport(LPCWSTR filepath) const;
 private:
 	std::vector<std::wstring> args_;
 	std::wstring hashfilename_;

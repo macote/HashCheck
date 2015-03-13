@@ -9,8 +9,6 @@ void HashCheck::Initialize()
 	silent_ = checking_ = updating_ = skipcheck_ = FALSE;
 	hashtype_ = HashType::Undefined;
 	appfilename_ = GetAppFileName(args_[0].c_str());
-	WIN32_FIND_DATAW findfiledata;
-	HANDLE hFind;
 
 	args_.erase(args_.begin());
 	if (args_.size() > 0)
@@ -48,6 +46,9 @@ void HashCheck::Initialize()
 		}
 	}
 
+	WIN32_FIND_DATAW findfiledata;
+	HANDLE hFind;
+
 	if (args_.size() > 0)
 	{
 		std::wstring tmp(args_[0]);
@@ -63,7 +64,7 @@ void HashCheck::Initialize()
 		}
 		else
 		{
-			silent_ = true;
+			silent_ = TRUE;
 		}
 	}
 
@@ -134,12 +135,12 @@ void HashCheck::Initialize()
 	}
 	else
 	{
-		updating_ = false;
+		updating_ = FALSE;
 	}
 
 }
 
-int HashCheck::Process()
+int HashCheck::Process() const
 {
 	auto mode = HashFileProcessor::Mode::Create;
 	if (checking_)
@@ -151,17 +152,17 @@ int HashCheck::Process()
 		mode = HashFileProcessor::Mode::Update;
 	}
 
-	auto hashtype = HashFileProcessor::HashType::Undefined;
+	auto hashtype = HashType::Undefined;
 	switch (hashtype_)
 	{
 	case HashType::CRC32:
-		hashtype = HashFileProcessor::HashType::CRC32;
+		hashtype = HashType::CRC32;
 		break;
 	case HashType::MD5:
-		hashtype = HashFileProcessor::HashType::MD5;
+		hashtype = HashType::MD5;
 		break;
 	case HashType::SHA1:
-		hashtype = HashFileProcessor::HashType::SHA1;
+		hashtype = HashType::SHA1;
 		break;
 	default:
 		break;
@@ -221,14 +222,14 @@ int HashCheck::Process()
 		WCHAR tempfolder[MAX_PATH];
 		GetTempPathW(MAX_PATH, tempfolder);
 		GetTempFileNameW(tempfolder, L"HashCheck", 0, tempfile);
-		hashfileprocessor.report().Save(tempfile);
+		hashfileprocessor.SaveReport(tempfile);
 		ViewReport(tempfile);
 	}
 
 	return exitcode;
 }
 
-std::wstring HashCheck::GetAppFileName(LPCWSTR apptitle)
+std::wstring HashCheck::GetAppFileName(LPCWSTR apptitle) const
 {
 	std::wstring temp = apptitle;
 	auto pos1 = temp.rfind(L"\\") + 1;
@@ -236,7 +237,7 @@ std::wstring HashCheck::GetAppFileName(LPCWSTR apptitle)
 	return temp.substr(pos1, pos2);
 }
 
-BOOL HashCheck::ViewReport(LPWSTR filepath)
+BOOL HashCheck::ViewReport(LPCWSTR filepath) const
 {
 	WCHAR cmdline[255];
 	lstrcpyW(cmdline, L"notepad.exe ");

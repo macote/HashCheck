@@ -2,10 +2,8 @@
 
 #include "HashFile.h"
 #include "FileTree.h"
-#include "FileHash.h"
-#include "SHA1FileHash.h"
-#include "MD5FileHash.h"
-#include "CRC32FileHash.h"
+#include "HashType.h"
+#include "FileHashFactory.h"
 #include "Report.h"
 
 class HashFileProcessor : public IFileTreeAction
@@ -18,12 +16,6 @@ public:
 		Verify,
 		Undefined
 	};
-	enum class HashType {
-		CRC32,
-		MD5,
-		SHA1,
-		Undefined
-	};
 	enum class ProcessResult
 	{
 		FilesAreMissing,
@@ -33,13 +25,11 @@ public:
 		NoFileToProcess,
 		Success
 	};
-	HashFileProcessor(Mode mode, HashType hashtype, const std::wstring hashfilename, const std::wstring appfilepath, const std::wstring basepath)
+	HashFileProcessor(Mode mode, HashType hashtype, std::wstring hashfilename, std::wstring appfilepath, std::wstring basepath)
 		: mode_(mode), hashtype_(hashtype), hashfilename_(hashfilename), appfilepath_(appfilepath), basepath_(basepath) { };
 	ProcessResult ProcessTree();
 	void ProcessFile(const std::wstring& filepath);
-	Report report() const { return report_; }
-private:
-	void CalculateHash(const std::wstring& filepath, std::wstring& digest);
+	void SaveReport(const std::wstring& reportpath) const { report_.Save(reportpath); }
 private:
 	Mode mode_;
 	HashType hashtype_;

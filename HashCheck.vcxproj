@@ -81,12 +81,14 @@
   <ItemGroup>
     <ClInclude Include="CRC32FileHash.h" />
     <ClInclude Include="FileHash.h" />
+    <ClInclude Include="FileHashFactory.h" />
     <ClInclude Include="FileStream.h" />
     <ClInclude Include="FileTree.h" />
     <ClInclude Include="HashCheck.h" />
     <ClInclude Include="HashCheckWindow.h" />
     <ClInclude Include="HashFile.h" />
     <ClInclude Include="HashFileProcessor.h" />
+    <ClInclude Include="HashType.h" />
     <ClInclude Include="MD5FileHash.h" />
     <ClInclude Include="Report.h" />
     <ClInclude Include="resource.h" />

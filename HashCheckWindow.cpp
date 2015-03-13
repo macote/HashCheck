@@ -20,9 +20,8 @@ LRESULT HashCheckWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_SIZE:
 		if (hwndChild_)
 		{
-			SetWindowPos(hwndChild_, NULL, 0, 0,
-				GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam),
-				SWP_NOZORDER | SWP_NOACTIVATE);
+			SetWindowPos(hwndChild_, NULL, 0, 0, GET_X_LPARAM(lParam), 
+				GET_Y_LPARAM(lParam), SWP_NOZORDER | SWP_NOACTIVATE);
 		}
 		return 0;
 	case WM_SETFOCUS:
