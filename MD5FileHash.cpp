@@ -72,13 +72,14 @@ void MD5FileHash::Finalize()
 		ZeroMemory(ctxbuffer, index - 8);	// pad block to 56 bytes
 	}
 	// append length in bits and transform
-    typedef union {
-        BYTE c[64];
-        UINT32 l[16];
-    } CHAR64LONG16, *PCHAR64LONG16;
-    PCHAR64LONG16 bufferlong = (PCHAR64LONG16)context_.buffer;
-    bufferlong->l[14] = context_.count[0];
-    bufferlong->l[15] = context_.count[1];
+	typedef union
+	{
+		BYTE c[64];
+		UINT32 l[16];
+	} CHAR64LONG16, *PCHAR64LONG16;
+	PCHAR64LONG16 bufferlong = (PCHAR64LONG16)context_.buffer;
+	bufferlong->l[14] = context_.count[0];
+	bufferlong->l[15] = context_.count[1];
 	Transform(context_.state, (PUINT32)context_.buffer);
 	CopyMemory(hash_, context_.state, sizeof(hash_));
 }
@@ -183,5 +184,5 @@ void MD5FileHash::Transform(UINT32 state[4], PUINT32 buffer)
 	state[2] += c;
 	state[3] += d;
 
-    a = b = c = d = 0;
+	a = b = c = d = 0;
 }
