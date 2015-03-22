@@ -169,7 +169,7 @@ int HashCheck::Process() const
 	}
 
 	HashFileProcessor hashfileprocessor(mode, hashtype, hashfilename_, appfilename_, basepath_);
-	auto result = hashfileprocessor.ProcessTree();
+ 	auto result = hashfileprocessor.ProcessTree();
 	BOOL viewreport = FALSE;
 	int exitcode = 0;
 	switch (result)

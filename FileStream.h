@@ -11,7 +11,7 @@
 
 class FileStream
 {
-private:
+public:
 	static const DWORD kDefaultBufferSize = 32768;
 public:
 	enum class Mode

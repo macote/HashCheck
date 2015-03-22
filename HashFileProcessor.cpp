@@ -121,6 +121,16 @@ void HashFileProcessor::ProcessFile(const std::wstring& filepath)
 		}
 	}
 	auto filehash = FileHashFactory::Create(hashtype_, filepath);
+	if (progressevent_ != nullptr)
+	{
+		hfppea_.bytesprocessed.QuadPart = 0;
+		hfppea_.relativefilepath = relativefilepath;
+		progressevent_(hfppea_);
+		filehash->SetBytesProcessedEventHandler([this](FileHashBytesProcessedEventArgs fhbea) {
+			this->hfppea_.bytesprocessed = fhbea.bytesprocessed;
+			this->progressevent_(hfppea_);
+		}, bytesprocessednotificationblocksize_);
+	}
 	filehash->Compute();
 	std::wstring digest = filehash->digest();
 	if (mode_ == HashFileProcessor::Mode::Create)
