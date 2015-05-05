@@ -1,21 +1,24 @@
 /* Author: macote */
 
+#include "resource.h"
 #include "Window.h"
 
 void Window::Register()
 {
-	WNDCLASS wc;
-	wc.style = 0;
-	wc.lpfnWndProc = Window::WndProc;
-	wc.cbClsExtra = 0;
-	wc.cbWndExtra = 0;
-	wc.hInstance = hinst_;
-	wc.hIcon = NULL;
-	wc.hCursor = LoadCursorW(NULL, IDC_ARROW);
-	wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-	wc.lpszMenuName = NULL;
-	wc.lpszClassName = ClassName();
-	WinRegisterClass(&wc);
+	WNDCLASSEX wndclassex;
+	wndclassex.cbSize = sizeof(WNDCLASSEX);
+	wndclassex.style = CS_HREDRAW | CS_VREDRAW;
+	wndclassex.lpfnWndProc = Window::WndProc;
+	wndclassex.cbClsExtra = 0;
+	wndclassex.cbWndExtra = 0;
+	wndclassex.hInstance = hinst_;
+	wndclassex.hIcon = (HICON)LoadImageW(hinst_, MAKEINTRESOURCE(IDI_ICON), IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR | LR_DEFAULTSIZE);
+	wndclassex.hIconSm = (HICON)LoadImageW(hinst_, MAKEINTRESOURCE(IDI_ICON), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR);
+	wndclassex.hCursor = LoadCursorW(NULL, IDC_ARROW);
+	wndclassex.hbrBackground = GetSysColorBrush(COLOR_BTNFACE);
+	wndclassex.lpszMenuName = NULL;
+	wndclassex.lpszClassName = ClassName();
+	WinRegisterClass(&wndclassex);
 }
 
 LRESULT CALLBACK Window::WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -24,13 +27,13 @@ LRESULT CALLBACK Window::WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 	if (uMsg == WM_NCCREATE)
 	{
 		auto lpcs = reinterpret_cast<LPCREATESTRUCT>(lParam);
-		self = reinterpret_cast<Window *>(lpcs->lpCreateParams);
+		self = reinterpret_cast<Window*>(lpcs->lpCreateParams);
 		self->hwnd_ = hwnd;
 		SetWindowLongPtrW(hwnd, GWLP_USERDATA, reinterpret_cast<LPARAM>(self));
 	}
 	else
 	{
-		self = reinterpret_cast<Window *>(GetWindowLongPtrW(hwnd, GWLP_USERDATA));
+		self = reinterpret_cast<Window*>(GetWindowLongPtrW(hwnd, GWLP_USERDATA));
 	}
 	if (self)
 	{

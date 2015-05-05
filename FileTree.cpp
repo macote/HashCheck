@@ -4,7 +4,7 @@
 
 void FileTree::ProcessTree(const std::wstring& path) const 
 {
-	WIN32_FIND_DATAW findfiledata;
+	WIN32_FIND_DATA findfiledata;
 	HANDLE hFind;
 	std::wstring pattern = path + L"*";
 	hFind = FindFirstFileW(pattern.c_str(), &findfiledata);

@@ -76,7 +76,7 @@ void SHA1FileHash::Transform(UINT32 state[5], PUINT32 buffer)
 	typedef union {
 		BYTE c[64];
 		UINT32 l[16];
-	} CHAR64LONG16, *PCHAR64LONG16;
+	} CHAR64LONG16, * PCHAR64LONG16;
 	PCHAR64LONG16 block;
 	block = (PCHAR64LONG16)buffer;
 

@@ -93,13 +93,13 @@ void HashFileProcessor::ProcessFile(const std::wstring& filepath)
 			return;
 		}
 	}
-	LARGE_INTEGER size;
-	size.QuadPart = 0;
+	LARGE_INTEGER filesize;
+	filesize.QuadPart = 0;
 	auto file = CreateFileW(filepath.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL,
 		OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (file != INVALID_HANDLE_VALUE)
 	{
-		GetFileSizeEx(file, &size);
+		GetFileSizeEx(file, &filesize);
 		CloseHandle(file);
 	}
 	else
@@ -113,7 +113,7 @@ void HashFileProcessor::ProcessFile(const std::wstring& filepath)
 	}
 	if (mode_ == HashFileProcessor::Mode::Verify)
 	{
-		if (size.QuadPart != fileentry.size().QuadPart)
+		if (filesize.QuadPart != fileentry.size().QuadPart)
 		{
 			report_.AddLine(L"Incorrect file size : " + relativefilepath);
 			hashfile_.RemoveFileEntry(relativefilepath);
@@ -126,8 +126,9 @@ void HashFileProcessor::ProcessFile(const std::wstring& filepath)
 		hfppea_.bytesprocessed.QuadPart = 0;
 		hfppea_.relativefilepath = relativefilepath;
 		progressevent_(hfppea_);
-		filehash->SetBytesProcessedEventHandler([this](FileHashBytesProcessedEventArgs fhbea) {
+		filehash->SetBytesProcessedEventHandler([this, filesize](FileHashBytesProcessedEventArgs fhbea) {
 			this->hfppea_.bytesprocessed = fhbea.bytesprocessed;
+			this->hfppea_.filesize = filesize;
 			this->progressevent_(hfppea_);
 		}, bytesprocessednotificationblocksize_);
 	}
@@ -135,16 +136,16 @@ void HashFileProcessor::ProcessFile(const std::wstring& filepath)
 	std::wstring digest = filehash->digest();
 	if (mode_ == HashFileProcessor::Mode::Create)
 	{
-		hashfile_.AddFileEntry(relativefilepath, size, digest);
+		hashfile_.AddFileEntry(relativefilepath, filesize, digest);
 	}
 	else if (mode_ == HashFileProcessor::Mode::Update)
 	{
-		newhashfile_.AddFileEntry(relativefilepath, size, digest);
+		newhashfile_.AddFileEntry(relativefilepath, filesize, digest);
 		newfilesupdated_ = TRUE;
 	}
 	else if (mode_ == HashFileProcessor::Mode::Verify)
 	{
-		if (size.QuadPart != fileentry.size().QuadPart)
+		if (filesize.QuadPart != fileentry.size().QuadPart)
 		{
 			report_.AddLine(L"Incorrect file size : " + relativefilepath);
 		}

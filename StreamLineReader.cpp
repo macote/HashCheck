@@ -37,8 +37,8 @@ std::wstring StreamLineReader::ReadLine()
 			bufferbytes = ReadBytes();
 			if (bufferbytes == 0) break;
 		}
-		char* p = (char *)buffer_ + readindex_;
-		while (*p != '\r' && *p != '\n' && p <= (char *)buffer_ + readindex_)
+		char* p = (char*)buffer_ + readindex_;
+		while (*p != '\r' && *p != '\n' && p <= (char*)buffer_ + readindex_)
 		{
 			raw.append(p, 1);
 			readindex_++;
@@ -58,7 +58,7 @@ std::wstring StreamLineReader::ReadLine()
 	if (raw.size() > 0)
 	{
 		DWORD cchWideChar = MultiByteToWideChar(CP_UTF8, 0, raw.c_str(), -1, NULL, 0);
-		WCHAR* wideChars = (WCHAR *)HeapAlloc(GetProcessHeap(), 0, cchWideChar * sizeof(WCHAR));
+		WCHAR* wideChars = (WCHAR*)HeapAlloc(GetProcessHeap(), 0, cchWideChar * sizeof(WCHAR));
 		cchWideChar = MultiByteToWideChar(CP_UTF8, 0, raw.c_str(), -1, wideChars, cchWideChar);
 		std::wstring line(wideChars);
 		HeapFree(GetProcessHeap(), 0, wideChars);

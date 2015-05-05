@@ -12,11 +12,11 @@ public:
 	Window(HINSTANCE hinst) : hinst_(hinst) { }
 protected:
 	virtual LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
-	virtual void PaintContent(PAINTSTRUCT *pps) { }
+	virtual void PaintContent(PAINTSTRUCT* pps) { }
 	virtual LPCWSTR ClassName() = 0;
-	virtual BOOL WinRegisterClass(WNDCLASS *pwc)
+	virtual BOOL WinRegisterClass(WNDCLASSEX* pwc)
 	{
-		return RegisterClassW(pwc);
+		return RegisterClassExW(pwc);
 	}
 	virtual ~Window() { }
 	HWND WinCreateWindow(DWORD dwExStyle, LPCWSTR pszName, DWORD dwStyle, 

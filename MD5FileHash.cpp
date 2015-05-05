@@ -76,7 +76,7 @@ void MD5FileHash::Finalize()
 	{
 		BYTE c[64];
 		UINT32 l[16];
-	} CHAR64LONG16, *PCHAR64LONG16;
+	} CHAR64LONG16, * PCHAR64LONG16;
 	PCHAR64LONG16 bufferlong = (PCHAR64LONG16)context_.buffer;
 	bufferlong->l[14] = context_.count[0];
 	bufferlong->l[15] = context_.count[1];

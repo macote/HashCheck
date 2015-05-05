@@ -46,7 +46,7 @@ void HashCheck::Initialize()
 		}
 	}
 
-	WIN32_FIND_DATAW findfiledata;
+	WIN32_FIND_DATA findfiledata;
 	HANDLE hFind;
 
 	if (args_.size() > 0)
@@ -169,6 +169,10 @@ int HashCheck::Process() const
 	}
 
 	HashFileProcessor hashfileprocessor(mode, hashtype, hashfilename_, appfilename_, basepath_);
+	if (progressevent_ != nullptr)
+	{
+		hashfileprocessor.SetProgressEventHandler(progressevent_);
+	}
  	auto result = hashfileprocessor.ProcessTree();
 	BOOL viewreport = FALSE;
 	int exitcode = 0;
@@ -242,7 +246,7 @@ BOOL HashCheck::ViewReport(LPCWSTR filepath) const
 	WCHAR cmdline[255];
 	lstrcpyW(cmdline, L"notepad.exe ");
 	lstrcatW(cmdline, filepath);
-	STARTUPINFOW si;
+	STARTUPINFO si;
 	ZeroMemory(&si, sizeof(si));
 	si.cb = sizeof(si);
 	PROCESS_INFORMATION pi;
@@ -257,3 +261,15 @@ BOOL HashCheck::ViewReport(LPCWSTR filepath) const
 	return FALSE;
 }
 
+DWORD HashCheck::StartProcessAsync()
+{
+	DWORD threadid;
+	CreateThread(NULL, 0, StaticThreadStart, (void*)this, 0, &threadid);
+	return threadid;
+}
+
+DWORD WINAPI HashCheck::StaticThreadStart(void* hashcheckinstance)
+{
+	HashCheck* hashcheck = (HashCheck*)hashcheckinstance;
+	return hashcheck->Process();
+}

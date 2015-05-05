@@ -9,13 +9,14 @@
 struct HashFileProcessorProgressEventArgs
 {
 	std::wstring relativefilepath;
+	LARGE_INTEGER filesize;
 	LARGE_INTEGER bytesprocessed;
 };
 
 class HashFileProcessor : public IFileTreeAction
 {
 public:
-	static const DWORD kDefaultBytesProcessedNotificationBlockSize = 1048576;
+	static const DWORD kDefaultBytesProcessedNotificationBlockSize = 4194304;
 public:
 	enum class Mode
 	{

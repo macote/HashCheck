@@ -29,25 +29,31 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	}
 	LocalFree(args);
 
-	//if (SUCCEEDED(CoInitialize(NULL)))
-	//{
-	//	InitCommonControls();
-	//	HashCheckWindow *hcw = HashCheckWindow::Create(hInstance);
-	//	if (hcw)
-	//	{
-	//		ShowWindow(hcw->GetHWND(), nCmdShow);
-	//		MSG msg;
-	//		while (GetMessage(&msg, NULL, 0, 0))
-	//		{
-	//			TranslateMessage(&msg);
-	//			DispatchMessage(&msg);
-	//		}
-	//	}
-	//	CoUninitialize();
-	//}
+	if (SUCCEEDED(CoInitialize(NULL)))
+	{
+		InitCommonControls();
+		HashCheckWindow* hashcheckwindow = HashCheckWindow::Create(hInstance, argsvector);
+		if (hashcheckwindow)
+		{
+			ShowWindow(hashcheckwindow->GetHWND(), nCmdShow);
+			hashcheckwindow->StartProcess();
+			MSG msg;
+			while (GetMessageW(&msg, NULL, 0, 0))
+			{
+				if (hashcheckwindow->dlgcurrent() == NULL || !IsDialogMessageW(hashcheckwindow->dlgcurrent(), &msg))
+				{
+					TranslateMessage(&msg);
+					DispatchMessageW(&msg);
+				}
+			}
+		}
+		CoUninitialize();
+	}
 
-	HashCheck hc(argsvector);
-	auto result = hc.Process();
+	//HashCheck hc(argsvector);
+	//auto result = hc.Process();
+
+	int result = 0;
 
 	return result;
 }
