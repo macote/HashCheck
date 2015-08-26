@@ -19,6 +19,7 @@ void SHA1FileHash::Update(const UINT32 bytecount)
 	{
 		context_.count[1]++;
 	}
+
 	context_.count[1] += (bytecount >> 29);
 	if ((index + bytecount) > 63)
 	{
@@ -29,12 +30,14 @@ void SHA1FileHash::Update(const UINT32 bytecount)
 		{
 			Transform(context_.state, (PUINT32)(buffer_ + i));
 		}
+
 		index = 0;
 	}
 	else
 	{
 		i = 0;
 	}
+
 	CopyMemory(&context_.buffer[index], buffer_ + i, bytecount - i);
 }
 
@@ -45,6 +48,7 @@ void SHA1FileHash::Finalize()
 	{
 		finalcount[i] = (BYTE)((context_.count[(i >= 4 ? 0 : 1)] >> ((3 - (i & 3)) * 8)) & 255);
 	}
+
 	CopyMemory(buffer_, "\200", 1);
 	Update(1);
 	CopyMemory(buffer_, "\0", 1);
@@ -52,6 +56,7 @@ void SHA1FileHash::Finalize()
 	{
 		Update(1);
 	}
+
 	CopyMemory(buffer_, finalcount, sizeof(finalcount));
 	Update(8);
 	for (UINT i = 0; i < sizeof(hash_); i++)
@@ -68,6 +73,7 @@ void SHA1FileHash::ConvertHashToDigestString()
 	{
 		wss << hash_[i];
 	}
+
 	digest_.append(wss.str());
 }
 
@@ -77,6 +83,7 @@ void SHA1FileHash::Transform(UINT32 state[5], PUINT32 buffer)
 		BYTE c[64];
 		UINT32 l[16];
 	} CHAR64LONG16, * PCHAR64LONG16;
+
 	PCHAR64LONG16 block;
 	block = (PCHAR64LONG16)buffer;
 

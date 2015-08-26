@@ -19,18 +19,15 @@ public:
 	static const DWORD kDefaultBufferSize = 32768;
 	static const DWORD kDefaultBytesProcessedNotificationBlockSize = 1048576;
 public:
-	FileHash(const std::wstring& filepath) : FileHash(filepath, kDefaultBufferSize) { };
+	FileHash(const std::wstring& filepath) : FileHash(filepath, kDefaultBufferSize) { }
 	FileHash(const std::wstring& filepath, const DWORD buffersize) 
 		: buffersize_(buffersize), filestream_(FileStream(filepath, FileStream::Mode::OpenNoBuffering, buffersize))
 	{
 		bytesprocessedevent_ = nullptr;
 		AllocateBuffer();
 	}
-	virtual ~FileHash()
-	{
-		FreeBuffer();
-	};
-	void Compute();
+	virtual ~FileHash() { FreeBuffer(); }
+	void Compute(BOOL& cancellationflag);
 	std::wstring digest() const { return digest_; }
 	void SetBytesProcessedEventHandler(std::function<void(FileHashBytesProcessedEventArgs)> handler)
 	{

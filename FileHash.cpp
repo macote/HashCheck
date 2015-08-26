@@ -15,7 +15,7 @@ void FileHash::FreeBuffer()
 	}
 }
 
-void FileHash::Compute()
+void FileHash::Compute(BOOL& cancellationflag)
 {
 	Initialize();
 	DWORD bytesread = 0;
@@ -24,11 +24,17 @@ void FileHash::Compute()
 	DWORD runningnotificationblocksize = 0;
 	do
 	{
+		if (cancellationflag)
+		{
+			return;
+		}
+
 		bytesread = filestream_.Read(buffer_, buffersize_);
 		if (bytesread > 0)
 		{
 			Update(bytesread);
 		}
+
 		if (bytesprocessedevent_ != nullptr)
 		{
 			fhbpea.bytesprocessed.QuadPart += bytesread;
@@ -39,11 +45,13 @@ void FileHash::Compute()
 				{
 					runningnotificationblocksize -= bytesprocessednotificationblocksize_;
 				}
+
 				bytesprocessedevent_(fhbpea);
 			}
 		}
 	}
 	while (bytesread > 0);
+
 	Finalize();
 	ConvertHashToDigestString();
 }

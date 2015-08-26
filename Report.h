@@ -12,16 +12,16 @@
 class Report
 {
 public:
-	void AddLine(const std::wstring line) { report_.push_back(line); };
+	void AddLine(const std::wstring line) { report_.push_back(line); }
 	void Save(const std::wstring& reportpath) const
 	{
-		FileStream reportfile(reportpath, FileStream::Mode::Truncate);
-		StreamLineWriter reportfilewriter(reportfile);
+		FileStream reportstream(reportpath, FileStream::Mode::Truncate);
+		StreamLineWriter reportfilewriter(reportstream);
 		for (auto& item : report_)
 		{
 			reportfilewriter.WriteLine(item);
 		}
-	};
+	}
 	BOOL IsEmpty() { return report_.size() == 0; }
 private:
 	std::list<std::wstring> report_;

@@ -13,19 +13,3 @@ void StreamLineWriter::Write(std::wstring line)
 		HeapFree(GetProcessHeap(), 0, bytes);
 	}
 }
-
-void StreamLineWriter::WriteLine(std::wstring line)
-{
-	Write(line);
-	WriteEOL();
-}
-
-void StreamLineWriter::WriteEOL()
-{
-	filestream_.Write((PBYTE)"\r\n", 2);
-}
-
-void StreamLineWriter::Close()
-{
-	filestream_.Close();
-}

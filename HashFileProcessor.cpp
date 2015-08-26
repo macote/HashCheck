@@ -18,9 +18,14 @@ HashFileProcessor::ProcessResult HashFileProcessor::ProcessTree()
 			return result;
 		}
 	}
+
 	FileTree filetree(basepath_, *this);
-	filetree.Process();
-	if (mode_ == HashFileProcessor::Mode::Create)
+	filetree.Process(cancellationflag_);
+	if (cancellationflag_)
+	{
+		result = ProcessResult::Canceled;
+	}
+	else if (mode_ == HashFileProcessor::Mode::Create)
 	{
 		if (hashfile_.IsEmpty())
 		{
@@ -44,6 +49,7 @@ HashFileProcessor::ProcessResult HashFileProcessor::ProcessTree()
 				// TODO: replace hardcoded text
 				report_.AddLine(L"Missing             : " + relativefilepath);
 			}
+
 			result = ProcessResult::FilesAreMissing;
 		}
 		else if (!report_.IsEmpty())
@@ -64,6 +70,20 @@ HashFileProcessor::ProcessResult HashFileProcessor::ProcessTree()
 			}
 		}
 	}
+
+	if (progressevent_ != nullptr)
+	{
+		hfppea_.bytesprocessed.QuadPart = 0;
+		hfppea_.filesize.QuadPart = 0;
+		hfppea_.relativefilepath = L"";
+		progressevent_(hfppea_);
+	}
+
+	if (completeevent_ != nullptr)
+	{
+		completeevent_();
+	}
+
 	return result;
 }
 
@@ -74,6 +94,7 @@ void HashFileProcessor::ProcessFile(const std::wstring& filepath)
 		// skip self and current hash file
 		return;
 	}
+
 	auto relativefilepath = filepath.substr(basepath_.length(), filepath.length());
 	const FileEntry& fileentry = hashfile_.GetFileEntry(relativefilepath);
 	if (mode_ == HashFileProcessor::Mode::Verify)
@@ -93,6 +114,7 @@ void HashFileProcessor::ProcessFile(const std::wstring& filepath)
 			return;
 		}
 	}
+
 	LARGE_INTEGER filesize;
 	filesize.QuadPart = 0;
 	auto file = CreateFileW(filepath.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL,
@@ -111,6 +133,7 @@ void HashFileProcessor::ProcessFile(const std::wstring& filepath)
 		}
 		return;
 	}
+
 	if (mode_ == HashFileProcessor::Mode::Verify)
 	{
 		if (filesize.QuadPart != fileentry.size().QuadPart)
@@ -120,6 +143,7 @@ void HashFileProcessor::ProcessFile(const std::wstring& filepath)
 			return;
 		}
 	}
+
 	auto filehash = FileHashFactory::Create(hashtype_, filepath);
 	if (progressevent_ != nullptr)
 	{
@@ -132,7 +156,8 @@ void HashFileProcessor::ProcessFile(const std::wstring& filepath)
 			this->progressevent_(hfppea_);
 		}, bytesprocessednotificationblocksize_);
 	}
-	filehash->Compute();
+
+	filehash->Compute(cancellationflag_);
 	std::wstring digest = filehash->digest();
 	if (mode_ == HashFileProcessor::Mode::Create)
 	{
@@ -153,6 +178,7 @@ void HashFileProcessor::ProcessFile(const std::wstring& filepath)
 		{
 			report_.AddLine(L"Incorrect hash      : " + relativefilepath);
 		}
+
 		hashfile_.RemoveFileEntry(relativefilepath);
 	}
 }

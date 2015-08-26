@@ -91,14 +91,24 @@ std::list<std::wstring> HashFile::GetFilePaths() const
 	{
 		filepaths.push_back(item.second.filepath());
 	}
+
 	return filepaths;
 }
 
 BOOL HashFile::IsValidHashLine(const std::wstring& fileentryline) const
 {
-	if (fileentryline.size() == 0) return FALSE;
-	if (fileentryline.size() > 2176) return FALSE;
+	if (fileentryline.size() == 0)
+	{
+		return FALSE;
+	}
+
+	if (fileentryline.size() > 2176)
+	{
+		return FALSE;
+	}
+
 	// TODO: implement proper hash line validation
+
 	return TRUE;
 }
 

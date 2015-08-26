@@ -35,6 +35,7 @@ LRESULT CALLBACK Window::WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 	{
 		self = reinterpret_cast<Window*>(GetWindowLongPtrW(hwnd, GWLP_USERDATA));
 	}
+
 	if (self)
 	{
 		return self->HandleMessage(uMsg, wParam, lParam);
@@ -62,6 +63,7 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		OnPrintClient(reinterpret_cast<HDC>(wParam));
 		return 0;
 	}
+
 	return DefWindowProcW(hwnd_, uMsg, wParam, lParam);
 }
 

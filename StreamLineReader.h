@@ -16,19 +16,17 @@ public:
 	{
 		UTF8
 	};
-	StreamLineReader(FileStream& filestream, Encoding encoding, const DWORD buffersize) : filestream_(filestream), encoding_(encoding), buffersize_(buffersize)
+	StreamLineReader(FileStream& filestream, Encoding encoding, const DWORD buffersize) 
+		: filestream_(filestream), encoding_(encoding), buffersize_(buffersize)
 	{
 		AllocateBuffer();
 	}
 	StreamLineReader(FileStream& filestream, Encoding encoding) : StreamLineReader(filestream, Encoding::UTF8, kDefaultBufferSize) { }
 	StreamLineReader(FileStream& filestream) : StreamLineReader(filestream, Encoding::UTF8) { }
-	~StreamLineReader()
-	{
-		FreeBuffer();
-	}
+	~StreamLineReader() { FreeBuffer(); }
 	std::wstring ReadLine();
-	BOOL EndOfStream();
-	void Close();
+	BOOL EndOfStream() { return ReadBytes() == 0; }
+	void Close() { filestream_.Close(); }
 private:
 	void AllocateBuffer();
 	void FreeBuffer();

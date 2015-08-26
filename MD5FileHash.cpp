@@ -19,6 +19,7 @@ void MD5FileHash::Update(const UINT32 bytecount)
 	{
 		context_.count[1]++;	// carry from low to high
 	}
+
 	context_.count[1] += bytecount >> 29;
 	index = (index >> 3) & 63;	// bytes already in shsInfo->data
 	UINT32 bytesleft = bytecount;
@@ -32,11 +33,13 @@ void MD5FileHash::Update(const UINT32 bytecount)
 			CopyMemory(ctxbuffer, buffer_, bytecount);
 			return;
 		}
+
 		CopyMemory(ctxbuffer, buffer_, index);
 		Transform(context_.state, (PUINT32)context_.buffer);
 		ctxbuffer += index;
 		bytesleft -= index;
 	}
+
 	// process data in 64-byte chunks
 	PBYTE buffer = buffer_;
 	while (bytesleft >= 64)
@@ -46,6 +49,7 @@ void MD5FileHash::Update(const UINT32 bytecount)
 		buffer += 64;
 		bytesleft -= 64;
 	}
+
 	// handle any remaining bytes of data.
 	CopyMemory(context_.buffer, buffer, bytesleft);
 }
@@ -71,12 +75,14 @@ void MD5FileHash::Finalize()
 	{
 		ZeroMemory(ctxbuffer, index - 8);	// pad block to 56 bytes
 	}
+
 	// append length in bits and transform
 	typedef union
 	{
 		BYTE c[64];
 		UINT32 l[16];
 	} CHAR64LONG16, * PCHAR64LONG16;
+
 	PCHAR64LONG16 bufferlong = (PCHAR64LONG16)context_.buffer;
 	bufferlong->l[14] = context_.count[0];
 	bufferlong->l[15] = context_.count[1];
@@ -92,6 +98,7 @@ void MD5FileHash::ConvertHashToDigestString()
 	{
 		wss << hash_[i];
 	}
+
 	digest_.append(wss.str());
 }
 

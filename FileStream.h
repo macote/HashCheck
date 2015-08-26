@@ -22,18 +22,18 @@ public:
 		Truncate,
 		Append
 	};
-	FileStream(const std::wstring& filepath, Mode mode) : FileStream(filepath, mode, kDefaultBufferSize) { };
+	FileStream(const std::wstring& filepath, Mode mode) : FileStream(filepath, mode, kDefaultBufferSize) { }
 	FileStream(const std::wstring& filepath, Mode mode, const DWORD buffersize) : filepath_(filepath), mode_(mode), buffersize_(buffersize)
 	{
 		AllocateBuffer();
 		OpenFile();
-	};
+	}
 	virtual ~FileStream()
 	{
 		Flush();
 		CloseFile();
 		FreeBuffer();
-	};
+	}
 	DWORD Read(PBYTE buffer, DWORD count);
 	void Write(PBYTE buffer, DWORD count);
 	void Flush();

@@ -14,10 +14,7 @@ protected:
 	virtual LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 	virtual void PaintContent(PAINTSTRUCT* pps) { }
 	virtual LPCWSTR ClassName() = 0;
-	virtual BOOL WinRegisterClass(WNDCLASSEX* pwc)
-	{
-		return RegisterClassExW(pwc);
-	}
+	virtual BOOL WinRegisterClass(WNDCLASSEX* pwc) { return RegisterClassExW(pwc); }
 	virtual ~Window() { }
 	HWND WinCreateWindow(DWORD dwExStyle, LPCWSTR pszName, DWORD dwStyle, 
 		int x, int y, int cx, int cy, HWND hwndParent, HMENU hmenu)

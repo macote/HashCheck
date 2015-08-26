@@ -20,8 +20,8 @@ class MD5FileHash : public FileHash
 {
 public:
 #if _MSC_VER < 1900
-	MD5FileHash(const std::wstring& filepath, const DWORD buffersize) : FileHash(filepath, buffersize) { };
-	MD5FileHash(const std::wstring& filepath) : FileHash(filepath) { };
+	MD5FileHash(const std::wstring& filepath, const DWORD buffersize) : FileHash(filepath, buffersize) { }
+	MD5FileHash(const std::wstring& filepath) : FileHash(filepath) { }
 #else
 	using FileHash::FileHash;
 #endif

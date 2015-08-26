@@ -16,7 +16,7 @@ class FileEntry
 {
 public:
 	FileEntry(const std::wstring filepath, const LARGE_INTEGER size, const std::wstring digest) 
-		: filepath_(filepath), size_(size), digest_(digest) { };
+		: filepath_(filepath), size_(size), digest_(digest) { }
 	std::wstring filepath() const { return filepath_; }
 	LARGE_INTEGER size() const { return size_; }
 	std::wstring digest() const { return digest_; }
@@ -31,7 +31,7 @@ class HashFile
 public:
 	static const FileEntry kFileEntryNull;
 public:
-	HashFile() { };
+	HashFile() { }
 	~HashFile()
 	{
 		files_.clear();

@@ -18,7 +18,10 @@
 #include <CommCtrl.h>
 #include <shellapi.h>
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+#if _MSC_VER
+#pragma warning(suppress: 28251)
+#endif
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
 	int argscount;
 	auto args = CommandLineToArgvW(GetCommandLineW(), &argscount);
@@ -27,6 +30,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	{
 		argsvector.push_back(args[i]);
 	}
+
 	LocalFree(args);
 
 	if (SUCCEEDED(CoInitialize(NULL)))
@@ -35,7 +39,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		HashCheckWindow* hashcheckwindow = HashCheckWindow::Create(hInstance, argsvector);
 		if (hashcheckwindow)
 		{
-			ShowWindow(hashcheckwindow->GetHWND(), nCmdShow);
+			ShowWindow(hashcheckwindow->GetHWND(), nShowCmd);
 			hashcheckwindow->StartProcess();
 			MSG msg;
 			while (GetMessageW(&msg, NULL, 0, 0))
@@ -47,13 +51,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				}
 			}
 		}
+
 		CoUninitialize();
 	}
 
-	//HashCheck hc(argsvector);
-	//auto result = hc.Process();
-
-	int result = 0;
-
-	return result;
+	return 0;
 }

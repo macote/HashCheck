@@ -20,8 +20,8 @@ class SHA1FileHash : public FileHash
 {
 public:
 #if _MSC_VER < 1900
-	SHA1FileHash(const std::wstring& filepath, const DWORD buffersize) : FileHash(filepath, buffersize) { };
-	SHA1FileHash(const std::wstring& filepath) : FileHash(filepath) { };
+	SHA1FileHash(const std::wstring& filepath, const DWORD buffersize) : FileHash(filepath, buffersize) { }
+	SHA1FileHash(const std::wstring& filepath) : FileHash(filepath) { }
 #else
 	using FileHash::FileHash;
 #endif

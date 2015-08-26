@@ -8,6 +8,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Other", "Other", "{653EFF76-A230-4DF9-9CD7-5C21570644E6}"
 	ProjectSection(SolutionItems) = preProject
 		README.md = README.md
+		scratch.txt = scratch.txt
 	EndProjectSection
 EndProject
 Global

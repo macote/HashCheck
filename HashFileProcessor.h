@@ -32,13 +32,16 @@ public:
 		CouldNotOpenHashFile,
 		ErrorsOccurredWhileProcessing,
 		NoFileToProcess,
-		Success
+		Success,
+		Canceled
 	};
+	HashFileProcessor()
+		: mode_(Mode::Undefined), hashtype_(HashType::Undefined), progressevent_(nullptr),
+		  completeevent_(nullptr){ }
 	HashFileProcessor(Mode mode, HashType hashtype, std::wstring hashfilename, std::wstring appfilepath, std::wstring basepath)
-		: mode_(mode), hashtype_(hashtype), hashfilename_(hashfilename), appfilepath_(appfilepath), basepath_(basepath)
-	{ 
-		progressevent_ = nullptr;
-	};
+		: mode_(mode), hashtype_(hashtype),
+		  hashfilename_(hashfilename), appfilepath_(appfilepath), basepath_(basepath),
+		  progressevent_(nullptr), completeevent_(nullptr) { }
 	ProcessResult ProcessTree();
 	void ProcessFile(const std::wstring& filepath);
 	void SaveReport(const std::wstring& reportpath) const { report_.Save(reportpath); }
@@ -52,6 +55,16 @@ public:
 		progressevent_ = handler;
 		bytesprocessednotificationblocksize_ = bytesprocessednotificationblocksize;
 	}
+	void SetCompleteEventHandler(std::function<void()> handler)
+	{
+		completeevent_ = handler;
+	}
+	void set_mode(const Mode mode) { mode_ = mode; }
+	void set_hashtype(const HashType hashtype) { hashtype_ = hashtype; }
+	void set_hashfilename(const std::wstring hashfilename) { hashfilename_ = hashfilename; }
+	void set_appfilepath(const std::wstring appfilepath) { appfilepath_ = appfilepath; }
+	void set_basepath(const std::wstring basepath) { basepath_ = basepath; }
+	void CancelProcess() { cancellationflag_ = TRUE; }
 private:
 	Mode mode_;
 	HashType hashtype_;
@@ -63,6 +76,8 @@ private:
 	BOOL newfilesupdated_ = FALSE;
 	Report report_;
 	HashFileProcessorProgressEventArgs hfppea_;
-	DWORD bytesprocessednotificationblocksize_;
+	DWORD bytesprocessednotificationblocksize_ = 0;
 	std::function<void(HashFileProcessorProgressEventArgs)> progressevent_;
+	std::function<void()> completeevent_;
+	BOOL cancellationflag_ = FALSE;
 };

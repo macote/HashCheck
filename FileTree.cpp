@@ -2,7 +2,7 @@
 
 #include "FileTree.h"
 
-void FileTree::ProcessTree(const std::wstring& path) const 
+void FileTree::ProcessTree(const std::wstring& path, BOOL& cancellationflag) const
 {
 	WIN32_FIND_DATA findfiledata;
 	HANDLE hFind;
@@ -17,7 +17,7 @@ void FileTree::ProcessTree(const std::wstring& path) const
 				if (lstrcmpW(findfiledata.cFileName, L".") != 0 && lstrcmpW(findfiledata.cFileName, L"..") != 0) 
 				{
 					std::wstring currentpath(path + findfiledata.cFileName + L"\\");
-					ProcessTree(currentpath);
+					ProcessTree(currentpath, cancellationflag);
 				}
 			}
 			else
@@ -25,7 +25,8 @@ void FileTree::ProcessTree(const std::wstring& path) const
 				std::wstring currentfile(path + findfiledata.cFileName);
 				fileaction_.ProcessFile(currentfile);
 			}
-		} while (FindNextFileW(hFind, &findfiledata));
+		} while (FindNextFileW(hFind, &findfiledata) && !cancellationflag);
+
 		FindClose(hFind);
 	}
 }

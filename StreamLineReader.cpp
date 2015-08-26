@@ -22,6 +22,7 @@ DWORD StreamLineReader::ReadBytes()
 		readindex_ = 0;
 		readlength_ = filestream_.Read(buffer_, buffersize_);
 	}
+
 	return readlength_;
 }
 
@@ -35,16 +36,25 @@ std::wstring StreamLineReader::ReadLine()
 		if (bufferbytes == 0)
 		{
 			bufferbytes = ReadBytes();
-			if (bufferbytes == 0) break;
+			if (bufferbytes == 0)
+			{
+				break;
+			}
 		}
+
 		char* p = (char*)buffer_ + readindex_;
 		while (*p != '\r' && *p != '\n' && p <= (char*)buffer_ + readindex_)
 		{
 			raw.append(p, 1);
 			readindex_++;
-			if (readlength_ - readindex_ == 0) break;
+			if (readlength_ - readindex_ == 0)
+			{
+				break;
+			}
+
 			p++;
 		}
+
 		if (*p == '\r' || *p == '\n')
 		{
 			eol = TRUE;
@@ -55,6 +65,7 @@ std::wstring StreamLineReader::ReadLine()
 			}
 		}
 	}
+
 	if (raw.size() > 0)
 	{
 		DWORD cchWideChar = MultiByteToWideChar(CP_UTF8, 0, raw.c_str(), -1, NULL, 0);
@@ -64,15 +75,6 @@ std::wstring StreamLineReader::ReadLine()
 		HeapFree(GetProcessHeap(), 0, wideChars);
 		return line;
 	}
+
 	return L"";
-}
-
-BOOL StreamLineReader::EndOfStream()
-{
-	return ReadBytes() == 0;
-}
-
-void StreamLineReader::Close()
-{
-	filestream_.Close();
 }

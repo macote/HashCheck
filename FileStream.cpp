@@ -57,11 +57,13 @@ void FileStream::OpenFile()
 		createdisposition = OPEN_EXISTING;
 		break;
 	}
+
 	DWORD flagsandattributes = FILE_ATTRIBUTE_NORMAL;
 	if (mode_ == Mode::OpenNoBuffering)
 	{
 		flagsandattributes |= FILE_FLAG_NO_BUFFERING;
 	}
+
 	filehandle_ = CreateFileW(filepath_.c_str(), desiredaccess, FILE_SHARE_READ,
 		NULL, createdisposition, flagsandattributes, NULL);
 	if (filehandle_ == INVALID_HANDLE_VALUE)
@@ -77,7 +79,15 @@ void FileStream::OpenFile()
 DWORD FileStream::Read(PBYTE buffer, DWORD offset, DWORD count)
 {
 	DWORD bytesread = 0;
-	ReadFile(filehandle_, buffer + offset, count, &bytesread, NULL);
+	if (!ReadFile(filehandle_, buffer + offset, count, &bytesread, NULL))
+	{
+		std::stringstream ss;
+		ss << "FileStream.Read(ReadFile()) failed with error ";
+		ss << "0x" << std::hex << std::setw(8) << std::setfill('0') << std::uppercase;
+		ss << GetLastError();
+		throw std::runtime_error(ss.str());
+	}
+
 	return bytesread;
 }
 
@@ -117,15 +127,21 @@ DWORD FileStream::Read(PBYTE buffer, DWORD count)
 			return bytesread;
 		}
 		bytesread = Read(buffer_, 0, buffersize_);
-		if (bytesread == 0) return 0;
+		if (bytesread == 0)
+		{
+			return 0;
+		}
+
 		readindex_ = 0;
 		readlength_ = bufferbytes = bytesread;
 		eof = bytesread < buffersize_;
 	}
+
 	if (bufferbytes > count)
 	{
 		bufferbytes = count;
 	}
+
 	CopyMemory(buffer, buffer_ + readindex_, bufferbytes);
 	readindex_ += bufferbytes;
 	if (bufferbytes < count && !eof)
@@ -134,6 +150,7 @@ DWORD FileStream::Read(PBYTE buffer, DWORD count)
 		bufferbytes += bytesread;
 		readindex_ = readlength_ = 0;
 	}
+
 	return bufferbytes;
 }
 
@@ -149,12 +166,14 @@ void FileStream::Write(PBYTE buffer, DWORD count)
 			{
 				bufferbytes = count;
 			}
+
 			CopyMemory(buffer_ + writeindex_, buffer, bufferbytes);
 			writeindex_ += bufferbytes;
 			if (bufferbytes == count) return;
 			bufferindex = bufferbytes;
 			count -= bufferbytes;
 		}
+
 		Write(buffer_, 0, writeindex_);
 		writeindex_ = 0;
 	}

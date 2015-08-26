@@ -36,7 +36,7 @@ public:
 		{
 			throw std::runtime_error("FileHashFactory.Create(): selected hash type is not supported.");
 		}
-	};
+	}
 };
 
 #endif /* FILEHASHFACTORY_H_ */

@@ -101,9 +101,6 @@
     <ClCompile Include="StreamLineReader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="StreamLineWriter.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="HashFile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
