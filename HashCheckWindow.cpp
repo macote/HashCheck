@@ -72,10 +72,11 @@ LRESULT HashCheckWindow::OnCreate()
 		hinst_,
 		NULL);
 
+	SetWindowTheme(progressbar_, L" ", L" ");
+	SendMessageW(progressbar_, PBM_SETBARCOLOR, 0, 0x00888888);
+	SendMessageW(progressbar_, PBM_SETPOS, 0, 0);
 	SendMessageW(currentfile_, WM_SETFONT, (UINT)captionfont_, 1);
 	SendMessageW(action_, WM_SETFONT, (UINT)captionfont_, 1);
-
-	SendMessageW(progressbar_, PBM_SETPOS, 0, 0);
 
 	std::wstring status = hashcheck_.checking() ? L"Checking" : hashcheck_.updating() ? L"Updating" : L"Creating";
 	UpdateTitleStatus(status);
@@ -112,6 +113,7 @@ void HashCheckWindow::UpdateTitleStatus(std::wstring status)
 	{
 		title += L" - " + status;
 	}
+
 	SetWindowTextW(hwnd_, title.c_str());
 }
 
@@ -146,18 +148,7 @@ LRESULT HashCheckWindow::OnProgressEventData(WPARAM wParam)
 			int value = static_cast<int>(ped->bytesprocessed.QuadPart * 100 / ped->filesize.QuadPart);
 			std::wstringstream wss;
 			wss << value;
-			if (value < 100)
-			{
-				SendMessageW(progressbar_, PBM_SETPOS, (WPARAM)value + 1, 0);
-				SendMessageW(progressbar_, PBM_SETPOS, (WPARAM)value, 0);
-			}
-			else
-			{
-				SendMessageW(progressbar_, PBM_SETRANGE, 0, MAKELPARAM(0, 101));
-				SendMessageW(progressbar_, PBM_SETPOS, 101, 0);
-				SendMessageW(progressbar_, PBM_SETPOS, 100, 0);
-				SendMessageW(progressbar_, PBM_SETRANGE, 0, MAKELPARAM(0, 100));
-			}
+			SendMessageW(progressbar_, PBM_SETPOS, (WPARAM)value, 0);
 		}
 	}
 	else

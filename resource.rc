@@ -1,4 +1,0 @@
-#include "resource.h"
-#include "winuser.h"
-IDI_ICON	ICON	"HashCheck.ico"
-CREATEPROCESS_MANIFEST_RESOURCE_ID	RT_MANIFEST	"application.manifest"

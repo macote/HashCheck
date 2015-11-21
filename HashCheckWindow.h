@@ -8,6 +8,7 @@
 #include "Window.h"
 #include <Windows.h>
 #include <commctrl.h>
+#include <Uxtheme.h>
 
 struct ProgressEventData
 {
