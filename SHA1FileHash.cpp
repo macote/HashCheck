@@ -67,14 +67,7 @@ void SHA1FileHash::Finalize()
 
 void SHA1FileHash::ConvertHashToDigestString()
 {
-	std::wstringstream wss;
-	wss << std::hex << std::setw(2) << std::setfill(L'0') << std::uppercase;
-	for (UINT i = 0; i < sizeof(hash_); i++)
-	{
-		wss << hash_[i];
-	}
-
-	digest_.append(wss.str());
+	digest_ = ConvertByteArrayToHexString(hash_, sizeof(hash_));
 }
 
 void SHA1FileHash::Transform(UINT32 state[5], PUINT32 buffer)

@@ -44,6 +44,8 @@ protected:
 	virtual void Update(const UINT32 bytes) = 0;
 	virtual void Finalize() = 0;
 	virtual void ConvertHashToDigestString() = 0;
+	std::wstring ConvertByteArrayToHexString(BYTE arr[], UINT length);
+	std::wstring ConvertUInt32ToHexString(UINT32 value);
 	PBYTE buffer_ = NULL;
 	std::wstring digest_;
 private:

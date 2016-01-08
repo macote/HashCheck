@@ -94,7 +94,5 @@ void CRC32FileHash::Finalize()
 
 void CRC32FileHash::ConvertHashToDigestString()
 {
-	std::wstringstream wss;
-	wss << std::hex << std::setw(8) << std::setfill(L'0') << std::uppercase << hash_;
-	digest_.append(wss.str());
+	digest_ = ConvertUInt32ToHexString(hash_);
 }

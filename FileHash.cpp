@@ -55,3 +55,21 @@ void FileHash::Compute(BOOL& cancellationflag)
 	Finalize();
 	ConvertHashToDigestString();
 }
+
+std::wstring FileHash::ConvertByteArrayToHexString(BYTE arr[], UINT length)
+{
+	std::wstringstream wss;
+	for (UINT i = 0; i < length; i++)
+	{
+		wss << std::setw(2) << std::setfill(L'0') << std::uppercase << std::hex << arr[i];
+	}
+
+	return wss.str();
+}
+
+std::wstring FileHash::ConvertUInt32ToHexString(UINT32 value)
+{
+	std::wstringstream wss;
+	wss << std::setw(8) << std::setfill(L'0') << std::uppercase << std::hex << value;
+	return wss.str();
+}

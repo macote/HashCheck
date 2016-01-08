@@ -92,14 +92,7 @@ void MD5FileHash::Finalize()
 
 void MD5FileHash::ConvertHashToDigestString()
 {
-	std::wstringstream wss;
-	wss << std::hex << std::setw(2) << std::setfill(L'0') << std::uppercase;
-	for (UINT i = 0; i < sizeof(hash_); i++)
-	{
-		wss << hash_[i];
-	}
-
-	digest_.append(wss.str());
+	digest_ = ConvertByteArrayToHexString(hash_, sizeof(hash_));
 }
 
 void MD5FileHash::Transform(UINT32 state[4], PUINT32 buffer)
