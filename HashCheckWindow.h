@@ -29,7 +29,8 @@ public:
 protected:
 	//virtual void PaintContent(PAINTSTRUCT* pps);
 	LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
-	void UpdateTitleStatus(std::wstring status);
+	void UpdateTitle();
+	void UpdateTitle(LONGLONG bytespersecond);
 	LRESULT OnCreate();
 	void OnNCDestroy();
 	LRESULT OnProgressEventData(WPARAM wParam);
@@ -41,6 +42,7 @@ private:
 	HANDLE completeevent_ = INVALID_HANDLE_VALUE;
 	//HWND hwndChild_;
 	std::wstring lastfile_;
+	std::wstring status_;
 	LARGE_INTEGER frequency_;
 	LARGE_INTEGER filestartcounter_;
 	BOOL cancellationflag_ = FALSE;

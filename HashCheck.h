@@ -23,7 +23,7 @@ public:
 		progressevent_ = nullptr;
 		Initialize();
 	}
-	int Process();
+	DWORD Process();
 	void CancelProcess() { hashfileprocessor_.CancelProcess(); }
 	void SetProgressEventHandler(std::function<void(HashFileProcessorProgressEventArgs)> handler)
 	{
@@ -45,7 +45,7 @@ private:
 	std::wstring GetAppFileName(LPCWSTR apptitle) const;
 	BOOL ViewReport(LPCWSTR filepath) const;
 	static DWORD WINAPI StaticThreadStart(void* hashcheckinstance);
-	void DisplayMessage(std::wstring message, int mbconstant);
+	void DisplayMessage(std::wstring message, UINT mbconstant);
 private:
 	std::vector<std::wstring> args_;
 	std::wstring hashfilename_;

@@ -153,7 +153,7 @@ void HashCheck::Initialize()
 	hashfileprocessor_.set_basepath(basepath_);
 }
 
-int HashCheck::Process()
+DWORD HashCheck::Process()
 {
 	if (progressevent_ != nullptr)
 	{
@@ -174,6 +174,7 @@ int HashCheck::Process()
 
 	BOOL viewreport = FALSE;
 	int exitcode = 0;
+
 	switch (result)
 	{
 	case HashFileProcessor::ProcessResult::FilesAreMissing:
@@ -267,7 +268,7 @@ BOOL HashCheck::ViewReport(LPCWSTR filepath) const
 	return FALSE;
 }
 
-void HashCheck::DisplayMessage(std::wstring message, int mbconstant)
+void HashCheck::DisplayMessage(std::wstring message, UINT mbconstant)
 {
 	lastmessage_ = message;
 	if (silent_)

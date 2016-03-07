@@ -78,8 +78,8 @@ LRESULT HashCheckWindow::OnCreate()
 	SendMessageW(currentfile_, WM_SETFONT, (UINT)captionfont_, 1);
 	SendMessageW(action_, WM_SETFONT, (UINT)captionfont_, 1);
 
-	std::wstring status = hashcheck_.checking() ? L"Checking" : hashcheck_.updating() ? L"Updating" : L"Creating";
-	UpdateTitleStatus(status);
+	status_ = hashcheck_.checking() ? L"Checking" : hashcheck_.updating() ? L"Updating" : L"Creating";
+	UpdateTitle();
 
 	QueryPerformanceFrequency(&frequency_);
 
@@ -106,12 +106,46 @@ void HashCheckWindow::StartProcess()
 	hashcheckthread_ = hashcheck_.StartProcessAsync();
 }
 
-void HashCheckWindow::UpdateTitleStatus(std::wstring status)
+void HashCheckWindow::UpdateTitle()
+{
+	UpdateTitle(0);
+}
+
+void HashCheckWindow::UpdateTitle(LONGLONG bytespersecond)
 {
 	std::wstring title = L"HashCheck";
-	if (status.length() > 0)
+	if (status_.length() > 0)
 	{
-		title += L" - " + status;
+		title += L" - " + status_;
+	}
+
+	if (bytespersecond > 0)
+	{
+		auto bytesperseconddouble = static_cast<double>(bytespersecond);
+		std::wstringstream wss;
+		std::wstring uom;
+		if (bytespersecond > 1073741824)
+		{
+			uom = L"GiB/s";
+			wss << std::setprecision(1) << std::fixed << bytesperseconddouble / 1073741824;
+		}
+		else if (bytespersecond > 1048576)
+		{
+			uom = L"MiB/s";
+			wss << std::setprecision(1) << std::fixed << bytesperseconddouble / 1048576;
+		}
+		else if (bytespersecond > 1024)
+		{
+			uom = L"KiB/s";
+			wss << std::setprecision(1) << std::fixed << bytesperseconddouble / 1024;
+		}
+		else
+		{
+			uom = L"B/s";
+			wss << bytespersecond;
+		}
+
+		title += L" - " + wss.str() + L" " + uom;
 	}
 
 	SetWindowTextW(hwnd_, title.c_str());
@@ -135,6 +169,7 @@ LRESULT HashCheckWindow::OnProgressEventData(WPARAM wParam)
 		SendMessageW(currentfile_, WM_SETTEXT, (WPARAM)NULL, (LPARAM)ped->relativefilepath.c_str());
 		SendMessageW(progressbar_, PBM_SETPOS, 0, 0);
 		QueryPerformanceCounter(&filestartcounter_);
+		UpdateTitle(0);
 	}
 	else if (ped->bytesprocessed.QuadPart > 0)
 	{
@@ -145,15 +180,15 @@ LRESULT HashCheckWindow::OnProgressEventData(WPARAM wParam)
 		elapsed.QuadPart /= frequency_.QuadPart;
 		if (elapsed.QuadPart > 166666)
 		{
-			int value = static_cast<int>(ped->bytesprocessed.QuadPart * 100 / ped->filesize.QuadPart);
-			std::wstringstream wss;
-			wss << value;
+			UINT value = static_cast<UINT>(ped->bytesprocessed.QuadPart * 100 / ped->filesize.QuadPart);
 			SendMessageW(progressbar_, PBM_SETPOS, (WPARAM)value, 0);
+			UpdateTitle((ped->bytesprocessed.QuadPart * 1000000) / elapsed.QuadPart);
 		}
 	}
 	else
 	{
 		SendMessageW(progressbar_, PBM_SETPOS, (WPARAM)0, 0);
+		UpdateTitle(0);
 	}
 
 	return FALSE;
