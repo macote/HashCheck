@@ -18,9 +18,6 @@
 #include <CommCtrl.h>
 #include <shellapi.h>
 
-#if _MSC_VER
-#pragma warning(suppress: 28251)
-#endif
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
 	int argscount;
@@ -39,7 +36,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		HashCheckWindow* hashcheckwindow = HashCheckWindow::Create(hInstance, argsvector);
 		if (hashcheckwindow)
 		{
-			ShowWindow(hashcheckwindow->GetHWND(), nShowCmd);
+			ShowWindow(hashcheckwindow->hwnd(), nShowCmd);
 			hashcheckwindow->StartProcess();
 			MSG msg;
 			while (GetMessageW(&msg, NULL, 0, 0))

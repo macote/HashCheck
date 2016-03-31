@@ -12,7 +12,7 @@ void SHA1FileHash::Initialize()
 	context_.count[0] = context_.count[1] = 0;
 }
 
-void SHA1FileHash::Update(const UINT32 bytecount)
+void SHA1FileHash::Update(UINT32 bytecount)
 {
 	UINT32 i, index = (context_.count[0] >> 3) & 63;
 	if ((context_.count[0] += bytecount << 3) < (bytecount << 3))

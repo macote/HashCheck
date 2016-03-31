@@ -2,6 +2,8 @@
 
 #include "HashCheckWindow.h"
 
+LPCWSTR HashCheckWindow::kClassName = L"HashCheckWindow";
+
 HashCheckWindow* HashCheckWindow::Create(HINSTANCE hInst, std::vector<std::wstring> args)
 {
 	auto self = new HashCheckWindow(hInst, args);
@@ -94,12 +96,12 @@ void HashCheckWindow::StartProcess()
 		ped->relativefilepath = hfppea.relativefilepath;
 		ped->filesize = hfppea.filesize;
 		ped->bytesprocessed = hfppea.bytesprocessed;
-		PostMessageW(this->GetHWND(), WM_PROGRESS_EVENT_DATA, reinterpret_cast<WPARAM>(ped), (LPARAM)NULL);
+		PostMessageW(this->hwnd(), WM_PROGRESS_EVENT_DATA, reinterpret_cast<WPARAM>(ped), (LPARAM)NULL);
 	});
 
 	hashcheck_.SetCompleteEventHandler([this]()
 	{
-		PostMessageW(this->GetHWND(), WM_COMPLETE_EVENT, (WPARAM)NULL, (LPARAM)NULL);
+		PostMessageW(this->hwnd(), WM_COMPLETE_EVENT, (WPARAM)NULL, (LPARAM)NULL);
 	});
 
 	hashcheck_.set_silent(TRUE);
@@ -162,7 +164,7 @@ void HashCheckWindow::CancelProcess()
 
 LRESULT HashCheckWindow::OnProgressEventData(WPARAM wParam)
 {
-	std::auto_ptr<ProgressEventData> ped(reinterpret_cast<ProgressEventData*>(wParam));
+	std::unique_ptr<ProgressEventData> ped(reinterpret_cast<ProgressEventData*>(wParam));
 	if (lastfile_ != ped->relativefilepath)
 	{
 		lastfile_ = ped->relativefilepath;

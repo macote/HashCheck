@@ -19,14 +19,18 @@ public:
 	static const DWORD kDefaultBufferSize = 32768;
 	static const DWORD kDefaultBytesProcessedNotificationBlockSize = 1048576;
 public:
-	FileHash(const std::wstring& filepath) : FileHash(filepath, kDefaultBufferSize) { }
-	FileHash(const std::wstring& filepath, const DWORD buffersize) 
-		: buffersize_(buffersize), filestream_(FileStream(filepath, FileStream::Mode::OpenNoBuffering, buffersize))
+	FileHash(std::wstring filepath) : FileHash(filepath, kDefaultBufferSize)
+	{ 
+	}
+	FileHash(std::wstring filepath, DWORD buffersize) 
+		: buffersize_(buffersize), filestream_(FileStream(filepath, FileStream::Mode::OpenWithoutBuffering, buffersize))
 	{
-		bytesprocessedevent_ = nullptr;
 		AllocateBuffer();
 	}
-	virtual ~FileHash() { FreeBuffer(); }
+	virtual ~FileHash() 
+	{ 
+		FreeBuffer(); 
+	}
 	void Compute(BOOL& cancellationflag);
 	std::wstring digest() const { return digest_; }
 	void SetBytesProcessedEventHandler(std::function<void(FileHashBytesProcessedEventArgs)> handler)
@@ -41,20 +45,20 @@ public:
 	}
 protected:
 	virtual void Initialize() = 0;
-	virtual void Update(const UINT32 bytes) = 0;
+	virtual void Update(UINT32 bytecount) = 0;
 	virtual void Finalize() = 0;
 	virtual void ConvertHashToDigestString() = 0;
 	std::wstring ConvertByteArrayToHexString(BYTE arr[], UINT length);
 	std::wstring ConvertUInt32ToHexString(UINT32 value);
-	PBYTE buffer_ = NULL;
+	PBYTE buffer_{ NULL };
 	std::wstring digest_;
 private:
 	void AllocateBuffer();
 	void FreeBuffer();
 	DWORD buffersize_;
 	FileStream filestream_;
-	DWORD bytesprocessednotificationblocksize_;
-	std::function<void(FileHashBytesProcessedEventArgs)> bytesprocessedevent_;
+	DWORD bytesprocessednotificationblocksize_{};
+	std::function<void(FileHashBytesProcessedEventArgs)> bytesprocessedevent_{ nullptr };
 };
 
 #endif /* FILEHASH_H_ */

@@ -43,7 +43,7 @@ void FileStream::FreeBuffer()
 
 void FileStream::OpenFile()
 {
-	DWORD desiredaccess = (mode_ >= Mode::Create) ? GENERIC_WRITE : GENERIC_READ;
+	DWORD desiredaccess = (mode_ == Mode::Open || mode_ == Mode::OpenWithoutBuffering) ? GENERIC_READ : GENERIC_WRITE;
 	DWORD createdisposition;
 	switch (mode_)
 	{
@@ -53,13 +53,17 @@ void FileStream::OpenFile()
 	case FileStream::Mode::Truncate:
 		createdisposition = CREATE_ALWAYS;
 		break;
+	case FileStream::Mode::Append:
+		createdisposition = OPEN_ALWAYS;
+		desiredaccess = FILE_APPEND_DATA;
+		break;
 	default:
 		createdisposition = OPEN_EXISTING;
 		break;
 	}
 
 	DWORD flagsandattributes = FILE_ATTRIBUTE_NORMAL;
-	if (mode_ == Mode::OpenNoBuffering)
+	if (mode_ == Mode::OpenWithoutBuffering)
 	{
 		flagsandattributes |= FILE_FLAG_NO_BUFFERING;
 	}
@@ -194,10 +198,4 @@ void FileStream::Flush()
 	{
 		FlushWrite();
 	}
-}
-
-void FileStream::Close()
-{
-	Flush();
-	CloseFile();
 }

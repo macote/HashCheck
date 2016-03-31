@@ -6,7 +6,7 @@ HashFileProcessor::ProcessResult HashFileProcessor::ProcessTree()
 {
 	auto result = ProcessResult::Success;
 	newfilesupdated_ = FALSE;
-	if (mode_ == HashFileProcessor::Mode::Verify || mode_ == HashFileProcessor::Mode::Update)
+	if (hashFileProcessType_ == HashFileProcessType::Verify || hashFileProcessType_ == HashFileProcessType::Update)
 	{
 		try
 		{
@@ -25,7 +25,7 @@ HashFileProcessor::ProcessResult HashFileProcessor::ProcessTree()
 	{
 		result = ProcessResult::Canceled;
 	}
-	else if (mode_ == HashFileProcessor::Mode::Create)
+	else if (hashFileProcessType_ == HashFileProcessType::Create)
 	{
 		if (hashfile_.IsEmpty())
 		{
@@ -40,7 +40,7 @@ HashFileProcessor::ProcessResult HashFileProcessor::ProcessTree()
 			hashfile_.Save(hashfilename_);
 		}
 	}
-	else if (mode_ == HashFileProcessor::Mode::Verify || mode_ == HashFileProcessor::Mode::Update)
+	else if (hashFileProcessType_ == HashFileProcessType::Verify || hashFileProcessType_ == HashFileProcessType::Update)
 	{
 		if (!hashfile_.IsEmpty())
 		{
@@ -56,7 +56,7 @@ HashFileProcessor::ProcessResult HashFileProcessor::ProcessTree()
 		{
 			result = ProcessResult::ErrorsOccurredWhileProcessing;
 		}
-		else if (mode_ == HashFileProcessor::Mode::Update)
+		else if (hashFileProcessType_ == HashFileProcessType::Update)
 		{
 			if (!newfilesupdated_)
 			{
@@ -89,7 +89,7 @@ HashFileProcessor::ProcessResult HashFileProcessor::ProcessTree()
 
 void HashFileProcessor::ProcessFile(const std::wstring& filepath)
 {
-	if (lstrcmpiW(appfilepath_.c_str(), filepath.c_str()) == 0 || lstrcmpiW(hashfilename_.c_str(), filepath.c_str()) == 0)
+	if (lstrcmpiW(appfilename_.c_str(), filepath.c_str()) == 0 || lstrcmpiW(hashfilename_.c_str(), filepath.c_str()) == 0)
 	{
 		// skip self and current hash file
 		return;
@@ -97,7 +97,7 @@ void HashFileProcessor::ProcessFile(const std::wstring& filepath)
 
 	auto relativefilepath = filepath.substr(basepath_.length(), filepath.length());
 	const FileEntry& fileentry = hashfile_.GetFileEntry(relativefilepath);
-	if (mode_ == HashFileProcessor::Mode::Verify)
+	if (hashFileProcessType_ == HashFileProcessType::Verify)
 	{
 		if (&fileentry == &HashFile::kFileEntryNull)
 		{
@@ -105,7 +105,7 @@ void HashFileProcessor::ProcessFile(const std::wstring& filepath)
 			return;
 		}
 	}
-	else if (mode_ == HashFileProcessor::Mode::Update)
+	else if (hashFileProcessType_ == HashFileProcessType::Update)
 	{
 		if (&fileentry == &HashFile::kFileEntryNull)
 		{
@@ -127,14 +127,15 @@ void HashFileProcessor::ProcessFile(const std::wstring& filepath)
 	else
 	{
 		report_.AddLine(L"Error opening file  : " + relativefilepath);
-		if (mode_ == HashFileProcessor::Mode::Verify)
+		if (hashFileProcessType_ == HashFileProcessType::Verify)
 		{
 			hashfile_.RemoveFileEntry(relativefilepath);
 		}
+
 		return;
 	}
 
-	if (mode_ == HashFileProcessor::Mode::Verify)
+	if (hashFileProcessType_ == HashFileProcessType::Verify)
 	{
 		if (filesize.QuadPart != fileentry.size().QuadPart)
 		{
@@ -159,16 +160,16 @@ void HashFileProcessor::ProcessFile(const std::wstring& filepath)
 
 	filehash->Compute(cancellationflag_);
 	std::wstring digest = filehash->digest();
-	if (mode_ == HashFileProcessor::Mode::Create)
+	if (hashFileProcessType_ == HashFileProcessType::Create)
 	{
 		hashfile_.AddFileEntry(relativefilepath, filesize, digest);
 	}
-	else if (mode_ == HashFileProcessor::Mode::Update)
+	else if (hashFileProcessType_ == HashFileProcessType::Update)
 	{
 		newhashfile_.AddFileEntry(relativefilepath, filesize, digest);
 		newfilesupdated_ = TRUE;
 	}
-	else if (mode_ == HashFileProcessor::Mode::Verify)
+	else if (hashFileProcessType_ == HashFileProcessType::Verify)
 	{
 		if (filesize.QuadPart != fileentry.size().QuadPart)
 		{

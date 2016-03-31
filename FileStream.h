@@ -17,27 +17,62 @@ public:
 	enum class Mode
 	{
 		Open,
-		OpenNoBuffering,
+		OpenWithoutBuffering,
 		Create,
 		Truncate,
 		Append
 	};
-	FileStream(const std::wstring& filepath, Mode mode) : FileStream(filepath, mode, kDefaultBufferSize) { }
-	FileStream(const std::wstring& filepath, Mode mode, const DWORD buffersize) : filepath_(filepath), mode_(mode), buffersize_(buffersize)
+	FileStream(std::wstring filepath, Mode mode) : FileStream(filepath, mode, kDefaultBufferSize) 
+	{ 
+	}
+	FileStream(std::wstring filepath, Mode mode, const DWORD buffersize) 
+		: filepath_(filepath), mode_(mode), buffersize_(buffersize)
 	{
 		AllocateBuffer();
 		OpenFile();
 	}
+	FileStream(FileStream&& other)
+		: filepath_(std::move(other.filepath_)), mode_(other.mode_), buffersize_(other.buffersize_)
+	{
+		*this = std::move(other);
+	}
+	FileStream& operator=(FileStream&& other)
+	{
+		if (this != &other)
+		{
+			if (other.filepath_.size() > 0)
+			{
+				filepath_ = std::move(other.filepath_);
+			}
+
+			mode_ = other.mode_;
+			buffersize_ = other.buffersize_;
+			readindex_ = other.readindex_;
+			readlength_ = other.readlength_;
+			writeindex_ = other.writeindex_;
+			other.writeindex_ = 0;
+			buffer_ = other.buffer_;
+			other.buffer_ = NULL;
+			filehandle_ = other.filehandle_;
+			other.filehandle_ = INVALID_HANDLE_VALUE;
+			lasterror_ = other.lasterror_;
+		}
+
+		return *this;
+	}
 	virtual ~FileStream()
 	{
-		Flush();
-		CloseFile();
+		Close();
 		FreeBuffer();
 	}
 	DWORD Read(PBYTE buffer, DWORD count);
 	void Write(PBYTE buffer, DWORD count);
 	void Flush();
-	void Close();
+	void Close()
+	{
+		Flush();
+		CloseFile();
+	}
 	DWORD lasterror() const { return lasterror_; }
 private:
 	void AllocateBuffer();
@@ -47,15 +82,15 @@ private:
 	void FlushWrite();
 	void CloseFile();
 	void FreeBuffer();
-	DWORD readindex_ = 0;
-	DWORD readlength_ = 0;
-	DWORD writeindex_ = 0;
-	PBYTE buffer_ = NULL;
-	const std::wstring filepath_;
+	DWORD readindex_{};
+	DWORD readlength_{};
+	DWORD writeindex_{};
+	PBYTE buffer_{ NULL };
+	std::wstring filepath_;
 	Mode mode_;
-	const DWORD buffersize_;
-	HANDLE filehandle_ = NULL;
-	DWORD lasterror_ = 0;
+	DWORD buffersize_;
+	HANDLE filehandle_{ NULL };
+	DWORD lasterror_{};
 };
 
 #endif /* FILESTREAM_H_ */

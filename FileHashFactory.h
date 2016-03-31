@@ -15,22 +15,19 @@
 class FileHashFactory
 {
 public:
-	static std::unique_ptr<FileHash> Create(HashType hashtype, const std::wstring& filepath)
+	static std::unique_ptr<FileHash> Create(HashType hashtype, std::wstring filepath)
 	{ 
 		if (hashtype == HashType::SHA1)
 		{
-			//return std::make_unique<SHA1FileHash>(filepath);
-			return std::unique_ptr<SHA1FileHash>(new SHA1FileHash(filepath));
+			return std::make_unique<SHA1FileHash>(filepath);
 		}
 		else if (hashtype == HashType::MD5)
 		{
-			//return std::make_unique<MD5FileHash>(filepath);
-			return std::unique_ptr<MD5FileHash>(new MD5FileHash(filepath));
+			return std::make_unique<MD5FileHash>(filepath);
 		}
 		else if (hashtype == HashType::CRC32)
 		{
-			//return std::make_unique<CRC32FileHash>(filepath);
-			return std::unique_ptr<CRC32FileHash>(new CRC32FileHash(filepath));
+			return std::make_unique<CRC32FileHash>(filepath);
 		}
 		else
 		{

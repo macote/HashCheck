@@ -19,15 +19,10 @@ struct MD5Context
 class MD5FileHash : public FileHash
 {
 public:
-#if _MSC_VER < 1900
-	MD5FileHash(const std::wstring& filepath, const DWORD buffersize) : FileHash(filepath, buffersize) { }
-	MD5FileHash(const std::wstring& filepath) : FileHash(filepath) { }
-#else
 	using FileHash::FileHash;
-#endif
 private:
 	void Initialize();
-	void Update(const UINT32 bytecount);
+	void Update(UINT32 bytecount);
 	void Finalize();
 	void Transform(UINT32 state[4], PUINT32 buffer);
 	void ConvertHashToDigestString();

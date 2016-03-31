@@ -11,7 +11,7 @@ void MD5FileHash::Initialize()
 	context_.count[0] = context_.count[1] = 0;
 }
 
-void MD5FileHash::Update(const UINT32 bytecount)
+void MD5FileHash::Update(UINT32 bytecount)
 {
 	UINT32 index = context_.count[0];	// update bitcount
 	context_.count[0] = index + (bytecount << 3);
@@ -22,7 +22,6 @@ void MD5FileHash::Update(const UINT32 bytecount)
 
 	context_.count[1] += bytecount >> 29;
 	index = (index >> 3) & 63;	// bytes already in shsInfo->data
-	UINT32 bytesleft = bytecount;
 	if (index > 0)
 	{
 		// handle any leading odd-sized chunks
@@ -37,21 +36,21 @@ void MD5FileHash::Update(const UINT32 bytecount)
 		CopyMemory(ctxbuffer, buffer_, index);
 		Transform(context_.state, (PUINT32)context_.buffer);
 		ctxbuffer += index;
-		bytesleft -= index;
+		bytecount -= index;
 	}
 
 	// process data in 64-byte chunks
 	PBYTE buffer = buffer_;
-	while (bytesleft >= 64)
+	while (bytecount >= 64)
 	{
 		CopyMemory(context_.buffer, buffer, sizeof(context_.buffer));
 		Transform(context_.state, (PUINT32)context_.buffer);
 		buffer += 64;
-		bytesleft -= 64;
+		bytecount -= 64;
 	}
 
 	// handle any remaining bytes of data.
-	CopyMemory(context_.buffer, buffer, bytesleft);
+	CopyMemory(context_.buffer, buffer, bytecount);
 }
 
 void MD5FileHash::Finalize()

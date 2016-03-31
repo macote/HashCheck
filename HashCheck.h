@@ -20,11 +20,13 @@ private:
 public:
 	HashCheck(std::vector<std::wstring> args) : args_(args)
 	{
-		progressevent_ = nullptr;
 		Initialize();
 	}
 	DWORD Process();
-	void CancelProcess() { hashfileprocessor_.CancelProcess(); }
+	void CancelProcess()
+	{ 
+		cancellationflag_ = TRUE;
+	}
 	void SetProgressEventHandler(std::function<void(HashFileProcessorProgressEventArgs)> handler)
 	{
 		progressevent_ = handler;
@@ -42,7 +44,7 @@ public:
 	void set_silent(const BOOL silent) { silent_ = silent; }
 private:
 	void Initialize();
-	std::wstring GetAppFileName(LPCWSTR apptitle) const;
+	std::wstring GetAppFileName(LPCWSTR command) const;
 	BOOL ViewReport(LPCWSTR filepath) const;
 	static DWORD WINAPI StaticThreadStart(void* hashcheckinstance);
 	void DisplayMessage(std::wstring message, UINT mbconstant);
@@ -52,14 +54,15 @@ private:
 	std::wstring basepath_;
 	std::wstring appfilename_;
 	std::wstring lastmessage_;
-	HashType hashtype_;
-	BOOL silent_;
-	BOOL checking_;
-	BOOL updating_;
-	BOOL skipcheck_;
-	HashFileProcessor hashfileprocessor_;
-	std::function<void(HashFileProcessorProgressEventArgs)> progressevent_;
-	std::function<void()> completeevent_;
+	HashFileProcessType hashFileProcessType_{ HashFileProcessType::Create };
+	HashType hashtype_{ HashType::Undefined };
+	BOOL silent_{};
+	BOOL checking_{};
+	BOOL updating_{};
+	BOOL skipcheck_{};
+	BOOL cancellationflag_{};
+	std::function<void(HashFileProcessorProgressEventArgs)> progressevent_{ nullptr };
+	std::function<void()> completeevent_{ nullptr };
 };
 
 #endif /* HASHCHECK_H_ */

@@ -135,37 +135,31 @@ void HashCheck::Initialize()
 		updating_ = FALSE;
 	}
 
-	auto mode = HashFileProcessor::Mode::Create;
 	if (checking_)
 	{
-		mode = HashFileProcessor::Mode::Verify;
+		hashFileProcessType_ = HashFileProcessType::Verify;
 	}
 	else if (updating_)
 	{
-		mode = HashFileProcessor::Mode::Update;
+		hashFileProcessType_ = HashFileProcessType::Update;
 	}
-
-	hashfileprocessor_.set_mode(mode);
-
-	hashfileprocessor_.set_hashtype(hashtype_);
-	hashfileprocessor_.set_appfilepath(appfilename_);
-	hashfileprocessor_.set_hashfilename(hashfilename_);
-	hashfileprocessor_.set_basepath(basepath_);
 }
 
 DWORD HashCheck::Process()
 {
+	HashFileProcessor hashFileProcessor(hashFileProcessType_, hashtype_, hashfilename_, appfilename_, basepath_, cancellationflag_);
+
 	if (progressevent_ != nullptr)
 	{
-		hashfileprocessor_.SetProgressEventHandler(progressevent_, 2097152);
+		hashFileProcessor.SetProgressEventHandler(progressevent_, 2097152);
 	}
 
 	if (completeevent_ != nullptr)
 	{
-		hashfileprocessor_.SetCompleteEventHandler(completeevent_);
+		hashFileProcessor.SetCompleteEventHandler(completeevent_);
 	}
 
-	auto result = hashfileprocessor_.ProcessTree();
+	auto result = hashFileProcessor.ProcessTree();
 	if (result == HashFileProcessor::ProcessResult::Canceled)
 	{
 		DisplayMessage(L"Canceled.", MB_ICONERROR);
@@ -232,16 +226,16 @@ DWORD HashCheck::Process()
 		WCHAR tempfolder[MAX_PATH];
 		GetTempPathW(MAX_PATH, tempfolder);
 		GetTempFileNameW(tempfolder, kHashCheckTitle, 0, tempfile);
-		hashfileprocessor_.SaveReport(tempfile);
+		hashFileProcessor.SaveReport(tempfile);
 		ViewReport(tempfile);
 	}
 
 	return exitcode;
 }
 
-std::wstring HashCheck::GetAppFileName(LPCWSTR apptitle) const
+std::wstring HashCheck::GetAppFileName(LPCWSTR command) const
 {
-	std::wstring temp = apptitle;
+	std::wstring temp = command;
 	auto pos1 = temp.rfind(L"\\") + 1;
 	auto pos2 = temp.rfind(L".") + 4 - pos1;
 	return temp.substr(pos1, pos2);

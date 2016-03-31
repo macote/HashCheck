@@ -13,16 +13,19 @@
 struct ProgressEventData
 {
 	std::wstring relativefilepath;
-	LARGE_INTEGER filesize;
-	LARGE_INTEGER bytesprocessed;
+	LARGE_INTEGER filesize{};
+	LARGE_INTEGER bytesprocessed{};
 };
 
 class HashCheckWindow : public Window
 {
+private:
+	static LPCWSTR kClassName;
 public:
-	HashCheckWindow(HINSTANCE hinst, std::vector<std::wstring> args) : Window(hinst), 
-		hashcheck_(HashCheck(args)) { }
-	virtual LPCWSTR ClassName() { return L"HashCheckWindow"; }
+	HashCheckWindow(HINSTANCE hinst, std::vector<std::wstring> args) : Window(hinst), hashcheck_(HashCheck(args)) 
+	{ 
+	}
+	virtual LPCWSTR ClassName() { return kClassName; }
 	static HashCheckWindow* Create(HINSTANCE hInst, std::vector<std::wstring> args);
 	HWND dlgcurrent() const { return dlgcurrent_; }
 	void StartProcess();
@@ -38,19 +41,19 @@ protected:
 	void CancelProcess();
 private:
 	HashCheck hashcheck_;
-	HANDLE hashcheckthread_ = INVALID_HANDLE_VALUE;
-	HANDLE completeevent_ = INVALID_HANDLE_VALUE;
+	HANDLE hashcheckthread_{ INVALID_HANDLE_VALUE };
+	HANDLE completeevent_{ INVALID_HANDLE_VALUE };
 	//HWND hwndChild_;
 	std::wstring lastfile_;
 	std::wstring status_;
-	LARGE_INTEGER frequency_;
-	LARGE_INTEGER filestartcounter_;
-	BOOL cancellationflag_ = FALSE;
-	HWND currentfile_ = NULL;
-	HWND progressbar_ = NULL;
-	HWND action_ = NULL;
-	HWND dlgcurrent_= NULL;
-	HFONT captionfont_ = NULL;
+	LARGE_INTEGER frequency_{};
+	LARGE_INTEGER filestartcounter_{};
+	BOOL cancellationflag_{};
+	HWND currentfile_{ NULL };
+	HWND progressbar_{ NULL };
+	HWND action_{ NULL };
+	HWND dlgcurrent_{ NULL };
+	HFONT captionfont_{ NULL };
 };
 
 #endif /* HASHCHECKWINDOW_H_ */

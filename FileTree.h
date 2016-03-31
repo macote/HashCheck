@@ -9,18 +9,25 @@
 class IFileTreeAction
 {
 public:
-	virtual ~IFileTreeAction() { }
+	virtual ~IFileTreeAction()
+	{ 
+	}
 	virtual void ProcessFile(const std::wstring& filepath) = 0;
 };
 
 class FileTree
 {
 public:
-	FileTree(const std::wstring basepath, IFileTreeAction& fileaction) : basepath_(basepath), fileaction_(fileaction) { }
-	void Process(BOOL& cancellationflag) const { ProcessTree(basepath_, cancellationflag); }
+	FileTree(const std::wstring& basepath, IFileTreeAction& fileaction) : basepath_(basepath), fileaction_(fileaction)
+	{
+	}
+	void Process(BOOL& cancellationflag) const
+	{ 
+		ProcessTree(basepath_, cancellationflag); 
+	}
 private:
 	void ProcessTree(const std::wstring& path, BOOL& cancellationflag) const;
-	const std::wstring basepath_;
+	std::wstring basepath_;
 	IFileTreeAction& fileaction_;
 };
 

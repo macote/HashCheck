@@ -66,6 +66,9 @@
     <ClInclude Include="HashType.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="HashFileProcessType.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="HashCheck.cpp">

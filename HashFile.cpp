@@ -6,8 +6,7 @@ const FileEntry HashFile::kFileEntryNull = FileEntry(L"", LARGE_INTEGER(), L"");
 
 void HashFile::Load(const std::wstring& hashfilepath)
 {
-	FileStream hashfile(hashfilepath.c_str(), FileStream::Mode::Open);
-	StreamLineReader hashfilereader(hashfile);
+	StreamLineReader hashfilereader(hashfilepath.c_str());
 	WCHAR buffer[2048];
 	std::wstring line, key, sizetemp, filepath, digest;
 	std::wstring::size_type pos1, pos2;
@@ -34,8 +33,7 @@ void HashFile::Load(const std::wstring& hashfilepath)
 
 void HashFile::Save(const std::wstring& hashfilepath) const
 {
-	FileStream hashfile(hashfilepath, FileStream::Mode::Create);
-	StreamLineWriter hashfilewriter(hashfile);
+	StreamLineWriter hashfilewriter(FileStream(hashfilepath, FileStream::Mode::Create));
 	for (auto& item : files_) 
 	{
 		auto fileentry = item.second;
@@ -43,7 +41,7 @@ void HashFile::Save(const std::wstring& hashfilepath) const
 	}
 }
 
-void HashFile::AddFileEntry(const std::wstring filepath, const LARGE_INTEGER size, const std::wstring digest)
+void HashFile::AddFileEntry(const std::wstring& filepath, const LARGE_INTEGER& size, const std::wstring& digest)
 {
 	files_.insert(std::pair<std::wstring, FileEntry>(filepath, FileEntry(filepath, size, digest)));
 }
