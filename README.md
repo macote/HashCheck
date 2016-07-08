@@ -45,4 +45,4 @@ MinGW's fstream can't open WCHAR filenames and I was not interested in changing 
 
 ### What's the coding style?
 
-The coding style is inspired from Google C++ [coding style guide](http://google-styleguide.googlecode.com/svn/trunk/cppguide.html "Google C++ Style Guide").
+The coding style is inspired from [Google C++ Style Guide](https://google.github.io/styleguide/cppguide.html "Google C++ Style Guide").
