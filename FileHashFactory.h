@@ -1,13 +1,10 @@
-/* Author: macote */
-
-#ifndef FILEHASHFACTORY_H_
-#define FILEHASHFACTORY_H_
+#pragma once
 
 #include "FileHash.h"
 #include "HashType.h"
 #include "CRC32FileHash.h"
-#include "MD5FileHash.h"
-#include "SHA1FileHash.h"
+#include "WinCryptSHA1FileHash.h"
+#include "WinCryptMD5FileHash.h"
 #include <string>
 #include <memory>
 #include <Windows.h>
@@ -19,11 +16,11 @@ public:
 	{ 
 		if (hashtype == HashType::SHA1)
 		{
-			return std::make_unique<SHA1FileHash>(filepath);
+			return std::make_unique<WinCryptSHA1FileHash>(filepath);
 		}
 		else if (hashtype == HashType::MD5)
 		{
-			return std::make_unique<MD5FileHash>(filepath);
+			return std::make_unique<WinCryptMD5FileHash>(filepath);
 		}
 		else if (hashtype == HashType::CRC32)
 		{
@@ -31,9 +28,7 @@ public:
 		}
 		else
 		{
-			throw std::runtime_error("FileHashFactory.Create(): selected hash type is not supported.");
+			throw std::runtime_error("FileHashFactory::Create(): the specified hash type is not supported.");
 		}
 	}
 };
-
-#endif /* FILEHASHFACTORY_H_ */

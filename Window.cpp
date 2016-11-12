@@ -1,5 +1,3 @@
-/* Author: macote */
-
 #include "resource.h"
 #include "Window.h"
 

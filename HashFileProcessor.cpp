@@ -1,5 +1,3 @@
-/* Author: macote */
-
 #include "HashFileProcessor.h"
 
 HashFileProcessor::ProcessResult HashFileProcessor::ProcessTree()

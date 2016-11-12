@@ -101,13 +101,15 @@
     <ClInclude Include="SHA1FileHash.h" />
     <ClInclude Include="StreamLineReader.h" />
     <ClInclude Include="StreamLineWriter.h" />
+    <ClInclude Include="WinCryptMD5FileHash.h" />
+    <ClInclude Include="WinCryptSHA1FileHash.h" />
     <ClInclude Include="Window.h" />
+    <ClInclude Include="WinCryptFileHash.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CRC32FileHash.cpp" />
     <ClCompile Include="FileHash.cpp" />
     <ClCompile Include="FileStream.cpp" />
-    <ClCompile Include="FileTree.cpp" />
     <ClCompile Include="HashCheck.cpp" />
     <ClCompile Include="HashCheckWindow.cpp" />
     <ClCompile Include="HashFile.cpp" />
@@ -116,7 +118,6 @@
     <ClCompile Include="Program.cpp" />
     <ClCompile Include="SHA1FileHash.cpp" />
     <ClCompile Include="StreamLineReader.cpp" />
-    <ClCompile Include="StreamLineWriter.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>

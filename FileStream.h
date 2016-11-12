@@ -1,7 +1,4 @@
-/* Author: macote */
-
-#ifndef FILESTREAM_H_
-#define FILESTREAM_H_
+#pragma once
 
 #include <iomanip>
 #include <sstream>
@@ -22,15 +19,16 @@ public:
 		Truncate,
 		Append
 	};
-	FileStream(std::wstring filepath, Mode mode) : FileStream(filepath, mode, kDefaultBufferSize) 
-	{ 
+	FileStream(std::wstring filepath, Mode mode) : FileStream(filepath, mode, kDefaultBufferSize)
+	{
 	}
-	FileStream(std::wstring filepath, Mode mode, const DWORD buffersize) 
+	FileStream(std::wstring filepath, Mode mode, const DWORD buffersize)
 		: filepath_(filepath), mode_(mode), buffersize_(buffersize)
 	{
 		AllocateBuffer();
 		OpenFile();
 	}
+	FileStream(const FileStream& that) = delete;
 	FileStream(FileStream&& other)
 		: filepath_(std::move(other.filepath_)), mode_(other.mode_), buffersize_(other.buffersize_)
 	{
@@ -93,4 +91,15 @@ private:
 	DWORD lasterror_{};
 };
 
-#endif /* FILESTREAM_H_ */
+inline void FileStream::AllocateBuffer()
+{
+	buffer_ = (PBYTE)VirtualAlloc(NULL, buffersize_, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+}
+
+inline void FileStream::FreeBuffer()
+{
+	if (buffer_ != NULL)
+	{
+		VirtualFree(buffer_, 0, MEM_RELEASE);
+	}
+}

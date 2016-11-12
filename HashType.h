@@ -1,7 +1,4 @@
-/* Author: macote */
-
-#ifndef HASHTYPE_H_
-#define HASHTYPE_H_
+#pragma once
 
 enum class HashType
 {
@@ -10,5 +7,3 @@ enum class HashType
 	SHA1,
 	Undefined
 };
-
-#endif /* HASHTYPE_H_ */

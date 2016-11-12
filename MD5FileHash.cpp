@@ -1,5 +1,3 @@
-/* Author: macote */
-
 #include "MD5FileHash.h"
 
 void MD5FileHash::Initialize()

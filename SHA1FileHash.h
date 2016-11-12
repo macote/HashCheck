@@ -1,7 +1,4 @@
-/* Author: macote */
-
-#ifndef SHA1FILEHASH_H_
-#define SHA1FILEHASH_H_
+#pragma once
 
 #include "FileHash.h"
 #include <iomanip>
@@ -29,5 +26,3 @@ private:
 	BYTE hash_[20];
 	SHA1Context context_;
 };
-
-#endif /* SHA1FILEHASH_H_ */

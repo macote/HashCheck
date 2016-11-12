@@ -69,6 +69,15 @@
     <ClInclude Include="HashFileProcessType.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="WinCryptFileHash.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WinCryptSHA1FileHash.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WinCryptMD5FileHash.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="HashCheck.cpp">
@@ -78,9 +87,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FileHash.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="FileTree.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="HashCheckWindow.cpp">
@@ -108,9 +114,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="HashFileProcessor.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="StreamLineWriter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

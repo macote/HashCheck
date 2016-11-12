@@ -1,5 +1,3 @@
-/* Author: macote */
-
 #include "SHA1FileHash.h"
 
 void SHA1FileHash::Initialize()
@@ -127,6 +125,3 @@ void SHA1FileHash::Transform(UINT32 state[5], PUINT32 buffer)
 
 	a = b = c = d = e = 0;
 }
-
-
-

@@ -1,5 +1,3 @@
-/* Author: macote */
-
 #include "StreamLineReader.h"
 
 void StreamLineReader::AllocateBuffer()

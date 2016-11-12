@@ -1,7 +1,4 @@
-/* Author: macote */
-
-#ifndef CRC32FILEHASH_H_
-#define CRC32FILEHASH_H_
+#pragma once
 
 #include "FileHash.h"
 #include <iomanip>
@@ -28,5 +25,3 @@ private:
 	}
 	UINT32 hash_{};
 };
-
-#endif /* CRC32FILEHASH_H_ */

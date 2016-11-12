@@ -1,7 +1,4 @@
-/* Author: macote */
-
-#ifndef FILEHASH_H_
-#define FILEHASH_H_
+#pragma once
 
 #include "FileStream.h"
 #include <string>
@@ -60,5 +57,3 @@ private:
 	DWORD bytesprocessednotificationblocksize_{};
 	std::function<void(FileHashBytesProcessedEventArgs)> bytesprocessedevent_{ nullptr };
 };
-
-#endif /* FILEHASH_H_ */

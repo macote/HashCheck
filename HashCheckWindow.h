@@ -1,7 +1,4 @@
-/* Author: macote */
-
-#ifndef HASHCHECKWINDOW_H_
-#define HASHCHECKWINDOW_H_
+#pragma once
 
 #include "HashCheck.h"
 #include "resource.h"
@@ -55,5 +52,3 @@ private:
 	HWND dlgcurrent_{ NULL };
 	HFONT captionfont_{ NULL };
 };
-
-#endif /* HASHCHECKWINDOW_H_ */

@@ -1,5 +1,3 @@
-/* Author: macote */
-
 #include "HashFile.h"
 
 const FileEntry HashFile::kFileEntryNull = FileEntry(L"", LARGE_INTEGER(), L"");

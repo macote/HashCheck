@@ -6,6 +6,7 @@
 *.sdf
 *.opensdf
 *.VC.opendb
+*.VC.db
 *.aps
 checksum.*
 scratch.txt

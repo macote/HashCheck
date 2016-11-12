@@ -1,4 +1,3 @@
-/* Author: macote */
 /* Portions of this code was inspired by dotnet/corefx's Win32FileStream.cs */
 /*
 
@@ -27,19 +26,6 @@ SOFTWARE.
 */
 
 #include "FileStream.h"
-
-void FileStream::AllocateBuffer()
-{
-	buffer_ = (PBYTE)VirtualAlloc(NULL, buffersize_, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
-}
-
-void FileStream::FreeBuffer()
-{
-	if (buffer_ != NULL)
-	{
-		VirtualFree(buffer_, 0, MEM_RELEASE);
-	}
-}
 
 void FileStream::OpenFile()
 {

@@ -1,7 +1,4 @@
-/* Author: macote */
-
-#ifndef STREAMLINEREADER_H_
-#define STREAMLINEREADER_H_
+#pragma once
 
 #include "FileStream.h"
 #include <string>
@@ -79,5 +76,3 @@ private:
 	DWORD readindex_{};
 	DWORD readlength_{};
 };
-
-#endif /* STREAMLINEREADER_H_ */

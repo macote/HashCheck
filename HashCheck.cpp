@@ -1,5 +1,3 @@
-/* Author: macote */
-
 #include "HashCheck.h"
 
 LPCWSTR HashCheck::kHashFileBaseName = L"checksum";

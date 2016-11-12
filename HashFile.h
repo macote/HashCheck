@@ -1,7 +1,4 @@
-/* Author: macote */
-
-#ifndef HASHFILE_H_
-#define HASHFILE_H_
+#pragma once
 
 #include "StreamLineReader.h"
 #include "StreamLineWriter.h"
@@ -57,5 +54,3 @@ private:
 private:
 	std::map<std::wstring, FileEntry, std::less<std::wstring>> files_;
 };
-
-#endif /* HASHFILE_H_ */

@@ -1,7 +1,4 @@
-/* Author: macote */
-
-#ifndef REPORT_H_
-#define REPORT_H_
+#pragma once
 
 #include "FileStream.h"
 #include "StreamLineWriter.h"
@@ -31,5 +28,3 @@ public:
 private:
 	std::list<std::wstring> report_;
 };
-
-#endif /* REPORT_H_ */

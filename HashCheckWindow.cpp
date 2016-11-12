@@ -1,5 +1,3 @@
-/* Author: macote */
-
 #include "HashCheckWindow.h"
 
 LPCWSTR HashCheckWindow::kClassName = L"HashCheckWindow";

@@ -1,7 +1,4 @@
-/* Author: macote */
-
-#ifndef HASHCHECK_H_
-#define HASHCHECK_H_
+#pragma once
 
 #define _CRT_SECURE_NO_WARNINGS
 
@@ -64,5 +61,3 @@ private:
 	std::function<void(HashFileProcessorProgressEventArgs)> progressevent_{ nullptr };
 	std::function<void()> completeevent_{ nullptr };
 };
-
-#endif /* HASHCHECK_H_ */

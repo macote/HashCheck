@@ -1,5 +1,3 @@
-/* Author: macote */
-
 #include "FileHash.h"
 
 void FileHash::AllocateBuffer()

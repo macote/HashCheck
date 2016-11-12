@@ -1,4 +1,4 @@
-/* Author: macote */
+#pragma once
 
 #include "HashFile.h"
 #include "FileTree.h"

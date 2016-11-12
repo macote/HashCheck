@@ -1,5 +1,3 @@
-/* Author: macote */
-
 #include "CRC32FileHash.h"
 
 const UINT32 CRC32FileHash::kCRC32Table[] = {

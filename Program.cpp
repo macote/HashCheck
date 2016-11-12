@@ -1,5 +1,3 @@
-/* Author: macote */
-
 #ifndef UNICODE
 #define UNICODE
 #endif

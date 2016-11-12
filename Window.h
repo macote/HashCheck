@@ -1,7 +1,4 @@
-/* Author: macote */
-
-#ifndef WINDOW_H_
-#define WINDOW_H_
+#pragma once
 
 #include <Windows.h>
 
@@ -40,5 +37,3 @@ private:
 	void OnPrintClient(HDC hdc);
 	static LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 };
-
-#endif /* WINDOW_H_ */

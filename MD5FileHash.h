@@ -1,7 +1,4 @@
-/* Author: macote */
-
-#ifndef MD5FILEHASH_H_
-#define MD5FILEHASH_H_
+#pragma once
 
 #include "FileHash.h"
 #include <iomanip>
@@ -29,5 +26,3 @@ private:
 	BYTE hash_[16];
 	MD5Context context_;
 };
-
-#endif /* MD5FILEHASH_H_ */

@@ -1,7 +1,4 @@
-/* Author: macote */
-
-#ifndef HASHFILEPROCESSTYPE_H_
-#define HASHFILEPROCESSTYPE_H_
+#pragma once
 
 enum class HashFileProcessType
 {
@@ -10,5 +7,3 @@ enum class HashFileProcessType
 	Verify,
 	Undefined
 };
-
-#endif /* HASHFILEPROCESSTYPE_H_ */
