@@ -54,12 +54,12 @@ void FileStream::OpenFile()
 		flagsandattributes |= FILE_FLAG_NO_BUFFERING;
 	}
 
-	filehandle_ = CreateFileW(filepath_.c_str(), desiredaccess, FILE_SHARE_READ,
+	filehandle_ = CreateFile(filepath_.c_str(), desiredaccess, FILE_SHARE_READ,
 		NULL, createdisposition, flagsandattributes, NULL);
 	if (filehandle_ == INVALID_HANDLE_VALUE)
 	{
 		std::stringstream ss;
-		ss << "FileStream.Open(CreateFileW()) failed with error ";
+		ss << "FileStream.Open(CreateFile()) failed with error ";
 		ss << "0x" << std::hex << std::setw(8) << std::setfill('0') << std::uppercase;
 		ss << GetLastError();
 		throw std::runtime_error(ss.str());

@@ -15,11 +15,12 @@ void FileHash::FreeBuffer()
 
 void FileHash::Compute(BOOL& cancellationflag)
 {
-	Initialize();
-	DWORD bytesread = 0;
+	DWORD bytesread = 0, runningnotificationblocksize = 0;
 	FileHashBytesProcessedEventArgs fhbpea;
 	fhbpea.bytesprocessed.QuadPart = 0;
-	DWORD runningnotificationblocksize = 0;
+
+	Initialize();
+
 	do
 	{
 		if (cancellationflag)

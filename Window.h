@@ -17,7 +17,7 @@ protected:
 	virtual LPCWSTR ClassName() = 0;
 	virtual BOOL WinRegisterClass(WNDCLASSEX* pwc) 
 	{ 
-		return RegisterClassExW(pwc); 
+		return RegisterClassEx(pwc); 
 	}
 	virtual ~Window() 
 	{ 
@@ -26,7 +26,7 @@ protected:
 		int x, int y, int cx, int cy, HWND hwndParent, HMENU hmenu)
 	{
 		Register();
-		return CreateWindowExW(dwExStyle, ClassName(), pszName, dwStyle,
+		return CreateWindowEx(dwExStyle, ClassName(), pszName, dwStyle,
 			x, y, cx, cy, hwndParent, hmenu, hinst_, this);
 	}
 	HWND hwnd_{ NULL };

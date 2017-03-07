@@ -34,15 +34,15 @@ LRESULT HashCheckWindow::OnCreate()
 #else
 	nonclientmetrics.cbSize = sizeof(NONCLIENTMETRICS);
 #endif
-	if (SystemParametersInfoW(SPI_GETNONCLIENTMETRICS, 0, &nonclientmetrics, 0))
+	if (SystemParametersInfo(SPI_GETNONCLIENTMETRICS, 0, &nonclientmetrics, 0))
 	{
-		captionfont_ = CreateFontIndirectW(&nonclientmetrics.lfMessageFont);
+		captionfont_ = CreateFontIndirect(&nonclientmetrics.lfMessageFont);
 	}
 
 	int rowpixels = 6, leftmargin = 6, fullwidthcontrolpixels = 570;
-	currentfile_ = CreateWindowExW(0,
+	currentfile_ = CreateWindowEx(0,
 		L"static",
-		L"",
+		(LPCWSTR)NULL,
 		WS_CHILD | WS_VISIBLE | SS_SIMPLE | SS_NOPREFIX,
 		leftmargin, rowpixels, fullwidthcontrolpixels, 20,
 		hwnd_,
@@ -51,7 +51,7 @@ LRESULT HashCheckWindow::OnCreate()
 		NULL);
 
 	rowpixels += 25;
-	progressbar_ = CreateWindowExW(0,
+	progressbar_ = CreateWindowEx(0,
 		PROGRESS_CLASS,
 		(LPCWSTR)NULL,
 		WS_CHILD | WS_VISIBLE | PBS_SMOOTH,
@@ -61,8 +61,18 @@ LRESULT HashCheckWindow::OnCreate()
 		hinst_,
 		NULL);
 
+	resultfile_ = CreateWindowEx(0,
+		L"static",
+		(LPCWSTR)NULL,
+		WS_CHILD | SS_NOPREFIX | SS_WORDELLIPSIS,
+		leftmargin, rowpixels, fullwidthcontrolpixels, 20,
+		hwnd_,
+		NULL,
+		hinst_,
+		NULL);
+
 	rowpixels += 25;
-	action_ = CreateWindowExW(0,
+	action_ = CreateWindowEx(0,
 		L"button",
 		L"Cancel",
 		WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_PUSHBUTTON | BS_NOTIFY,
@@ -72,16 +82,44 @@ LRESULT HashCheckWindow::OnCreate()
 		hinst_,
 		NULL);
 
-	SetWindowTheme(progressbar_, L" ", L" ");
-	SendMessageW(progressbar_, PBM_SETBARCOLOR, 0, 0x00888888);
-	SendMessageW(progressbar_, PBM_SETPOS, 0, 0);
-	SendMessageW(currentfile_, WM_SETFONT, (UINT)captionfont_, 1);
-	SendMessageW(action_, WM_SETFONT, (UINT)captionfont_, 1);
+	copy_ = CreateWindowEx(0,
+		L"button",
+		L"Copy",
+		WS_CHILD | WS_TABSTOP | BS_PUSHBUTTON | BS_NOTIFY,
+		leftmargin + 85 + 5, rowpixels, 85, 25,
+		hwnd_,
+		NULL,
+		hinst_,
+		NULL);
 
-	status_ = hashcheck_.checking() ? L"Checking" : hashcheck_.updating() ? L"Updating" : L"Creating";
-	UpdateTitle();
+	SetWindowTheme(progressbar_, L" ", L" ");
+	SendMessage(progressbar_, PBM_SETBARCOLOR, 0, 0x00888888);
+	SendMessage(progressbar_, PBM_SETPOS, 0, 0);
+	SendMessage(currentfile_, WM_SETFONT, (UINT)captionfont_, 1);
+	SendMessage(resultfile_, WM_SETFONT, (UINT)captionfont_, 1);
+	SendMessage(action_, WM_SETFONT, (UINT)captionfont_, 1);
+	SendMessage(copy_, WM_SETFONT, (UINT)captionfont_, 1);
 
 	QueryPerformanceFrequency(&frequency_);
+
+	switch (hashcheck_.fileprocesstype())
+	{
+	case HashFileProcessType::Create:
+		status_ = L"Creating";
+		break;
+	case HashFileProcessType::Update:
+		status_ = L"Updating";
+		break;
+	case HashFileProcessType::Verify:
+		status_ = L"Checking";
+		break;
+	case HashFileProcessType::Single:
+		break;
+	default:
+		break;
+	}
+
+	UpdateTitle();
 
 	return FALSE;
 }
@@ -94,12 +132,12 @@ void HashCheckWindow::StartProcess()
 		ped->relativefilepath = hfppea.relativefilepath;
 		ped->filesize = hfppea.filesize;
 		ped->bytesprocessed = hfppea.bytesprocessed;
-		PostMessageW(this->hwnd(), WM_PROGRESS_EVENT_DATA, reinterpret_cast<WPARAM>(ped), (LPARAM)NULL);
+		PostMessage(this->hwnd(), WM_PROGRESS_EVENT_DATA, reinterpret_cast<WPARAM>(ped), (LPARAM)NULL);
 	});
 
 	hashcheck_.SetCompleteEventHandler([this]()
 	{
-		PostMessageW(this->hwnd(), WM_COMPLETE_EVENT, (WPARAM)NULL, (LPARAM)NULL);
+		PostMessage(this->hwnd(), WM_COMPLETE_EVENT, (WPARAM)NULL, (LPARAM)NULL);
 	});
 
 	hashcheck_.set_silent(TRUE);
@@ -113,7 +151,7 @@ void HashCheckWindow::UpdateTitle()
 
 void HashCheckWindow::UpdateTitle(LONGLONG bytespersecond)
 {
-	std::wstring title = L"HashCheck";
+	std::wstring title = L"HashCheck - " + HashTypeStrings::GetHashTypeString(hashcheck_.hashtype());
 	if (status_.length() > 0)
 	{
 		title += L" - " + status_;
@@ -148,13 +186,13 @@ void HashCheckWindow::UpdateTitle(LONGLONG bytespersecond)
 		title += L" - " + wss.str() + L" " + uom;
 	}
 
-	SetWindowTextW(hwnd_, title.c_str());
+	SetWindowText(hwnd_, title.c_str());
 }
 
 void HashCheckWindow::CancelProcess()
 {
 	cancellationflag_ = TRUE;
-	SendMessageW(currentfile_, WM_SETTEXT, (WPARAM)NULL, (LPARAM)L"Canceling...");
+	SendMessage(currentfile_, WM_SETTEXT, (WPARAM)NULL, (LPARAM)L"Canceling...");
 	hashcheck_.CancelProcess();
 	WaitForSingleObject(hashcheckthread_, INFINITE);
 	hashcheckthread_ = INVALID_HANDLE_VALUE;
@@ -166,8 +204,12 @@ LRESULT HashCheckWindow::OnProgressEventData(WPARAM wParam)
 	if (lastfile_ != ped->relativefilepath)
 	{
 		lastfile_ = ped->relativefilepath;
-		SendMessageW(currentfile_, WM_SETTEXT, (WPARAM)NULL, (LPARAM)ped->relativefilepath.c_str());
-		SendMessageW(progressbar_, PBM_SETPOS, 0, 0);
+		if (ped->relativefilepath.size() > 0)
+		{
+			SendMessage(currentfile_, WM_SETTEXT, (WPARAM)NULL, (LPARAM)ped->relativefilepath.c_str());
+		}
+
+		SendMessage(progressbar_, PBM_SETPOS, 0, 0);
 		QueryPerformanceCounter(&filestartcounter_);
 		UpdateTitle(0);
 	}
@@ -181,13 +223,13 @@ LRESULT HashCheckWindow::OnProgressEventData(WPARAM wParam)
 		if (elapsed.QuadPart > 166666)
 		{
 			UINT value = static_cast<UINT>(ped->bytesprocessed.QuadPart * 100 / ped->filesize.QuadPart);
-			SendMessageW(progressbar_, PBM_SETPOS, (WPARAM)value, 0);
+			SendMessage(progressbar_, PBM_SETPOS, (WPARAM)value, 0);
 			UpdateTitle((ped->bytesprocessed.QuadPart * 1000000) / elapsed.QuadPart);
 		}
 	}
 	else
 	{
-		SendMessageW(progressbar_, PBM_SETPOS, (WPARAM)0, 0);
+		SendMessage(progressbar_, PBM_SETPOS, (WPARAM)0, 0);
 		UpdateTitle(0);
 	}
 
@@ -204,9 +246,29 @@ LRESULT HashCheckWindow::OnCompleteEvent()
 
 	DWORD exitcode;
 	GetExitCodeThread(hashcheckthread_, &exitcode);
-	std::wstring status = hashcheck_.lastmessage();
-	SendMessageW(currentfile_, WM_SETTEXT, (WPARAM)NULL, (LPARAM)status.c_str());
-	SetWindowTextW(action_, L"Exit");
+	status_ = L"";
+	SetWindowText(action_, L"Exit");
+	UpdateTitle();
+	ShowWindow(progressbar_, SW_HIDE);
+	ShowWindow(resultfile_, SW_SHOW);
+	SendMessage(resultfile_, WM_SETTEXT, (WPARAM)NULL, (LPARAM)hashcheck_.lastmessage().c_str());
+	if (hashcheck_.fileprocesstype() == HashFileProcessType::Single)
+	{
+		ShowWindow(copy_, SW_SHOW);
+	}
+	else
+	{
+		if (hashcheck_.basepath().size() > 0)
+		{
+			SendMessage(currentfile_, WM_SETTEXT, (WPARAM)NULL, (LPARAM)hashcheck_.basepath().c_str());
+		}
+		else
+		{
+			TCHAR currentdirectory[2048];
+			GetCurrentDirectory(2048, currentdirectory);
+			SendMessage(currentfile_, WM_SETTEXT, (WPARAM)NULL, (LPARAM)currentdirectory);
+		}
+	}
 
 	return FALSE;
 }
@@ -239,17 +301,22 @@ LRESULT HashCheckWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		switch (HIWORD(wParam))
 		{
 		case BN_CLICKED:
-			if (reinterpret_cast<HWND>(lParam) == action_)
+			auto button = reinterpret_cast<HWND>(lParam);
+			if (button == action_)
 			{
 				if (hashcheckthread_ != INVALID_HANDLE_VALUE)
 				{
 					CancelProcess();
-					SetWindowTextW(action_, L"Exit");
+					SetWindowText(action_, L"Exit");
 				}
 				else
 				{
 					PostQuitMessage(0);
 				}
+			}
+			else if (button == copy_)
+			{
+				CopyTextToClipboard(hashcheck_.lastmessage());
 			}
 
 			break;
@@ -278,4 +345,17 @@ LRESULT HashCheckWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	}
 
 	return Window::HandleMessage(uMsg, wParam, lParam);
+}
+
+void HashCheckWindow::CopyTextToClipboard(const std::wstring text)
+{
+	OpenClipboard(NULL);
+	EmptyClipboard();
+	auto hashstringsize = text.size() * sizeof(TCHAR);
+	auto bufferhandle = GlobalAlloc(GHND, hashstringsize + sizeof(TCHAR));
+	CopyMemory(GlobalLock(bufferhandle), hashcheck_.lastmessage().c_str(), hashstringsize);
+	GlobalUnlock(bufferhandle);
+	SetClipboardData(CF_UNICODETEXT, bufferhandle);
+	GlobalFree(bufferhandle);
+	CloseClipboard();
 }

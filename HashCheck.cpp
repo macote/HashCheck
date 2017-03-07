@@ -4,6 +4,15 @@ LPCWSTR HashCheck::kHashFileBaseName = L"checksum";
 
 LPCWSTR HashCheck::kHashCheckTitle = L"HashCheck";
 
+std::map<HashType, std::wstring> HashCheck::kHashTypeExtensionMap = 
+{
+	{ HashType::CRC32, L".crc32" },
+	{ HashType::MD5, L".md5" },
+	{ HashType::SHA1, L".sha1" },
+	{ HashType::SHA256, L".sha256" },
+	{ HashType::SHA512, L".sha512" }
+};
+
 void HashCheck::Initialize()
 {
 	silent_ = checking_ = updating_ = skipcheck_ = FALSE;
@@ -25,6 +34,20 @@ void HashCheck::Initialize()
 		if (it != args_.end())
 		{
 			skipcheck_ = TRUE;
+			args_.erase(it);
+		}
+
+		it = std::find(args_.begin(), args_.end(), L"-sha512");
+		if (it != args_.end())
+		{
+			hashtype_ = HashType::SHA512;
+			args_.erase(it);
+		}
+
+		it = std::find(args_.begin(), args_.end(), L"-sha256");
+		if (it != args_.end())
+		{
+			hashtype_ = HashType::SHA256;
 			args_.erase(it);
 		}
 
@@ -50,73 +73,101 @@ void HashCheck::Initialize()
 		}
 	}
 
-	WIN32_FIND_DATA findfiledata;
-	HANDLE hFind;
+	InitializeHashType();
 
 	if (args_.size() > 0)
 	{
-		std::wstring tmp(args_[0]);
-		if (*(tmp.end() - 1) != L'\\')
+		InitializeTarget(args_[0]);
+	}
+
+	if (hashfileprocesstype_ != HashFileProcessType::Single)
+	{
+		InitializeHashFile();
+	}
+}
+
+void HashCheck::InitializeHashType()
+{
+	WIN32_FIND_DATA findfiledata;
+	HANDLE find;
+
+	std::wstring baseFilename = kHashFileBaseName;
+	if (hashtype_ == HashType::Undefined)
+	{
+		for (const auto &pair : kHashTypeExtensionMap)
 		{
-			tmp += L'\\';
+			auto hashfilename = baseFilename + pair.second;
+			find = FindFirstFile(hashfilename.c_str(), &findfiledata);
+			if (find != INVALID_HANDLE_VALUE && !(findfiledata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+			{
+				FindClose(find);
+				hashtype_ = pair.first;
+			}
 		}
 
-		tmp += L"*";
-		hFind = FindFirstFileW(tmp.c_str(), &findfiledata);
-		if (hFind != INVALID_HANDLE_VALUE)
+		if (hashtype_ == HashType::Undefined)
 		{
-			FindClose(hFind);
-			basepath_ = args_[0] + L'\\';
+			hashtype_ = kDefaultHashType;
 		}
 	}
 
-	std::wstring baseFilename = kHashFileBaseName;
-	if (hashtype_ == HashType::SHA1)
-		hashfilename_ = baseFilename + L".sha1";
-	else if (hashtype_ == HashType::MD5)
-		hashfilename_ = baseFilename + L".md5";
-	else if (hashtype_ == HashType::CRC32)
-		hashfilename_ = baseFilename + L".crc32";
-	else
+	hashfilename_ = baseFilename + kHashTypeExtensionMap[hashtype_];
+}
+
+void HashCheck::InitializeTarget(std::wstring target)
+{
+	WIN32_FIND_DATA findfiledata;
+	HANDLE find;
+
+	std::wstring fileorpath(args_[0]);
+	if (*(fileorpath.end() - 1) == L'\\' || *(fileorpath.end() - 1) == L'\"')
 	{
-		hashfilename_ = baseFilename + L".sha1";
-		hFind = FindFirstFileW(hashfilename_.c_str(), &findfiledata);
-		if (hFind != INVALID_HANDLE_VALUE)
+		fileorpath.pop_back();
+	}
+
+	find = FindFirstFile(fileorpath.c_str(), &findfiledata);
+	if (find != INVALID_HANDLE_VALUE)
+	{
+		FindClose(find);
+		if (!(findfiledata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 		{
-			FindClose(hFind);
-			hashtype_ = HashType::SHA1;
+			hashfileprocesstype_ = HashFileProcessType::Single;
+			basepath_ = fileorpath;
 		}
 		else
 		{
-			hashfilename_ = baseFilename + L".md5";
-			hFind = FindFirstFileW(hashfilename_.c_str(), &findfiledata);
-			if (hFind != INVALID_HANDLE_VALUE)
+			std::wstring path = fileorpath + L"\\*";
+			find = FindFirstFile(path.c_str(), &findfiledata);
+			if (find != INVALID_HANDLE_VALUE)
 			{
-				FindClose(hFind);
-				hashtype_ = HashType::MD5;
+				FindClose(find);
+				basepath_ = fileorpath + L'\\';
 			}
 			else
-			{
-				hashfilename_ = baseFilename + L".crc32";
-				hFind = FindFirstFileW(hashfilename_.c_str(), &findfiledata);
-				if (hFind != INVALID_HANDLE_VALUE)
-				{
-					FindClose(hFind);
-					hashtype_ = HashType::CRC32;
-				}
-				else
-				{
-					hashfilename_ = baseFilename + L".sha1";
-					hashtype_ = HashType::SHA1;
-				}
+			{ 
+				auto message = L"Error: There's nothing to process in the target folder.";
+				MessageBox(NULL, message, kHashCheckTitle, MB_ICONERROR | MB_SYSTEMMODAL);
+				ExitProcess(0);
 			}
 		}
 	}
-
-	hFind = FindFirstFileW(hashfilename_.c_str(), &findfiledata);
-	if (hFind != INVALID_HANDLE_VALUE)
+	else
 	{
-		FindClose(hFind);
+		auto message = L"Error: The specified file or folder argument was not found.";
+		MessageBox(NULL, message, kHashCheckTitle, MB_ICONERROR | MB_SYSTEMMODAL);
+		ExitProcess(0);
+	}
+}
+
+void HashCheck::InitializeHashFile()
+{
+	WIN32_FIND_DATA findfiledata;
+	HANDLE find;
+
+	find = FindFirstFile(hashfilename_.c_str(), &findfiledata);
+	if (find != INVALID_HANDLE_VALUE)
+	{
+		FindClose(find);
 		if (!(findfiledata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 		{
 			checking_ = !updating_;
@@ -124,7 +175,7 @@ void HashCheck::Initialize()
 		else
 		{
 			auto message = L"Error: Can't create hash file. Delete '" + hashfilename_ + L"' folder.";
-			MessageBoxW(NULL, message.c_str(), kHashCheckTitle, MB_ICONERROR | MB_SYSTEMMODAL);
+			MessageBox(NULL, message.c_str(), kHashCheckTitle, MB_ICONERROR | MB_SYSTEMMODAL);
 			ExitProcess(0);
 		}
 	}
@@ -135,21 +186,21 @@ void HashCheck::Initialize()
 
 	if (checking_)
 	{
-		hashFileProcessType_ = HashFileProcessType::Verify;
+		hashfileprocesstype_ = HashFileProcessType::Verify;
 	}
 	else if (updating_)
 	{
-		hashFileProcessType_ = HashFileProcessType::Update;
+		hashfileprocesstype_ = HashFileProcessType::Update;
 	}
 }
 
 DWORD HashCheck::Process()
 {
-	HashFileProcessor hashFileProcessor(hashFileProcessType_, hashtype_, hashfilename_, appfilename_, basepath_, cancellationflag_);
+	HashFileProcessor hashFileProcessor(hashfileprocesstype_, hashtype_, hashfilename_, appfilename_, basepath_, cancellationflag_);
 
 	if (progressevent_ != nullptr)
 	{
-		hashFileProcessor.SetProgressEventHandler(progressevent_, 2097152);
+		hashFileProcessor.SetProgressEventHandler(progressevent_, kBytesProcessedNotificationBlockSize);
 	}
 
 	if (completeevent_ != nullptr)
@@ -157,7 +208,7 @@ DWORD HashCheck::Process()
 		hashFileProcessor.SetCompleteEventHandler(completeevent_);
 	}
 
-	auto result = hashFileProcessor.ProcessTree();
+	auto result = hashFileProcessor.Process();
 	if (result == HashFileProcessor::ProcessResult::Canceled)
 	{
 		DisplayMessage(L"Canceled.", MB_ICONERROR);
@@ -170,7 +221,7 @@ DWORD HashCheck::Process()
 	switch (result)
 	{
 	case HashFileProcessor::ProcessResult::FilesAreMissing:
-		if (updating_)
+		if (hashfileprocesstype_ == HashFileProcessType::Update)
 		{
 			DisplayMessage(L"Error: Can't update because files are missing.", MB_ICONERROR);
 		}
@@ -200,21 +251,27 @@ DWORD HashCheck::Process()
 		exitcode = 5;
 		break;
 	case HashFileProcessor::ProcessResult::Success:
-		if (checking_)
+		if (hashfileprocesstype_ == HashFileProcessType::Single)
+		{
+			DisplayMessage(hashFileProcessor.currentdigest().c_str() , MB_ICONINFORMATION);
+		}
+		else if (hashfileprocesstype_ == HashFileProcessType::Verify)
 		{
 			DisplayMessage(L"All files OK.", MB_ICONINFORMATION);
 		}
-		else if (updating_)
+		else if (hashfileprocesstype_ == HashFileProcessType::Update)
 		{
 			DisplayMessage(L"Hash file was updated successfully.", MB_ICONINFORMATION);
 		}
-		else
+		else  if (hashfileprocesstype_ == HashFileProcessType::Create)
 		{
 			DisplayMessage(L"Hash file was created successfully.", MB_ICONINFORMATION);
 		}
 
 		break;
 	default:
+		DisplayMessage(L"Error: Unhandled error.", MB_ICONERROR);
+		exitcode = 10;
 		break;
 	}
 
@@ -222,8 +279,8 @@ DWORD HashCheck::Process()
 	{
 		WCHAR tempfile[MAX_PATH];
 		WCHAR tempfolder[MAX_PATH];
-		GetTempPathW(MAX_PATH, tempfolder);
-		GetTempFileNameW(tempfolder, kHashCheckTitle, 0, tempfile);
+		GetTempPath(MAX_PATH, tempfolder);
+		GetTempFileName(tempfolder, kHashCheckTitle, 0, tempfile);
 		hashFileProcessor.SaveReport(tempfile);
 		ViewReport(tempfile);
 	}
@@ -242,14 +299,14 @@ std::wstring HashCheck::GetAppFileName(LPCWSTR command) const
 BOOL HashCheck::ViewReport(LPCWSTR filepath) const
 {
 	WCHAR cmdline[255];
-	lstrcpyW(cmdline, L"notepad.exe ");
-	lstrcatW(cmdline, filepath);
+	lstrcpy(cmdline, L"notepad.exe ");
+	lstrcat(cmdline, filepath);
 	STARTUPINFO si;
 	ZeroMemory(&si, sizeof(si));
 	si.cb = sizeof(si);
 	PROCESS_INFORMATION pi;
 	ZeroMemory(&pi, sizeof(pi));
-	if (CreateProcessW(NULL, cmdline, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi) && !silent_)
+	if (CreateProcess(NULL, cmdline, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi) && !silent_)
 	{
 		WaitForSingleObject(pi.hProcess, INFINITE);
 		CloseHandle(pi.hProcess);
@@ -268,7 +325,7 @@ void HashCheck::DisplayMessage(std::wstring message, UINT mbconstant)
 		return;
 	}
 
-	MessageBoxW(NULL, message.c_str(), kHashCheckTitle, mbconstant | MB_SYSTEMMODAL);
+	MessageBox(NULL, message.c_str(), kHashCheckTitle, mbconstant | MB_SYSTEMMODAL);
 }
 
 HANDLE HashCheck::StartProcessAsync()

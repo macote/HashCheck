@@ -19,7 +19,7 @@
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
 	int argscount;
-	auto args = CommandLineToArgvW(GetCommandLineW(), &argscount);
+	auto args = CommandLineToArgvW(GetCommandLine(), &argscount);
 	std::vector<std::wstring> argsvector;
 	for (int i = 0; i < argscount; ++i)
 	{
@@ -37,12 +37,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			ShowWindow(hashcheckwindow->hwnd(), nShowCmd);
 			hashcheckwindow->StartProcess();
 			MSG msg;
-			while (GetMessageW(&msg, NULL, 0, 0))
+			while (GetMessage(&msg, NULL, 0, 0))
 			{
-				if (hashcheckwindow->dlgcurrent() == NULL || !IsDialogMessageW(hashcheckwindow->dlgcurrent(), &msg))
+				if (hashcheckwindow->dlgcurrent() == NULL || !IsDialogMessage(hashcheckwindow->dlgcurrent(), &msg))
 				{
 					TranslateMessage(&msg);
-					DispatchMessageW(&msg);
+					DispatchMessage(&msg);
 				}
 			}
 		}

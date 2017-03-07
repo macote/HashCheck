@@ -27,13 +27,14 @@ public:
 		ErrorsOccurredWhileProcessing,
 		NoFileToProcess,
 		Success,
-		Canceled
+		Canceled,
+		UnsupportedProcessType
 	};
 	HashFileProcessor(HashFileProcessType hashFileProcessType, HashType hashtype, std::wstring hashfilename, std::wstring appfilename, std::wstring basepath, BOOL& cancellationflag)
 		: hashFileProcessType_(hashFileProcessType), hashtype_(hashtype), hashfilename_(hashfilename), appfilename_(appfilename), basepath_(basepath), cancellationflag_(cancellationflag)
 	{ 
 	}
-	ProcessResult ProcessTree();
+	ProcessResult Process();
 	void ProcessFile(const std::wstring& filepath);
 	void SaveReport(const std::wstring& reportpath) const 
 	{ 
@@ -57,6 +58,8 @@ public:
 	{ 
 		cancellationflag_ = TRUE;
 	}
+	std::wstring currentdigest() const { return currentdigest_; }
+	std::wstring FileName() const;
 private:
 	HashFileProcessType hashFileProcessType_{ HashFileProcessType::Undefined };
 	HashType hashtype_{ HashType::Undefined };
@@ -65,6 +68,7 @@ private:
 	std::wstring hashfilename_;
 	std::wstring appfilename_;
 	std::wstring basepath_;
+	std::wstring currentdigest_;
 	BOOL newfilesupdated_{};
 	Report report_;
 	HashFileProcessorProgressEventArgs hfppea_;

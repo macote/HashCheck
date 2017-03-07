@@ -1,6 +1,17 @@
 #include "HashFileProcessor.h"
 
-HashFileProcessor::ProcessResult HashFileProcessor::ProcessTree()
+std::wstring HashFileProcessor::FileName() const
+{
+	size_t lastslashposition = basepath_.find_last_of(L'\\');
+	if (lastslashposition == std::wstring::npos)
+	{
+		return basepath_;
+	}
+
+	return basepath_.substr(lastslashposition + 1, basepath_.size());
+}
+
+HashFileProcessor::ProcessResult HashFileProcessor::Process()
 {
 	auto result = ProcessResult::Success;
 	newfilesupdated_ = FALSE;
@@ -12,9 +23,16 @@ HashFileProcessor::ProcessResult HashFileProcessor::ProcessTree()
 		}
 		catch (...)
 		{
-			result = ProcessResult::CouldNotOpenHashFile;
-			return result;
+			return ProcessResult::CouldNotOpenHashFile;
 		}
+	}
+	else if (hashFileProcessType_ == HashFileProcessType::Single)
+	{
+		ProcessFile(basepath_);
+	}
+	else if (hashFileProcessType_ != HashFileProcessType::Create)
+	{
+		return ProcessResult::UnsupportedProcessType;
 	}
 
 	FileTree filetree(basepath_, *this);
@@ -63,7 +81,7 @@ HashFileProcessor::ProcessResult HashFileProcessor::ProcessTree()
 			else
 			{
 				// replace old hash file
-				DeleteFileW(hashfilename_.c_str());
+				DeleteFile(hashfilename_.c_str());
 				newhashfile_.Save(hashfilename_);
 			}
 		}
@@ -87,13 +105,22 @@ HashFileProcessor::ProcessResult HashFileProcessor::ProcessTree()
 
 void HashFileProcessor::ProcessFile(const std::wstring& filepath)
 {
-	if (lstrcmpiW(appfilename_.c_str(), filepath.c_str()) == 0 || lstrcmpiW(hashfilename_.c_str(), filepath.c_str()) == 0)
+	if (lstrcmpi(appfilename_.c_str(), filepath.c_str()) == 0 || lstrcmpi(hashfilename_.c_str(), filepath.c_str()) == 0)
 	{
 		// skip self and current hash file
 		return;
 	}
 
-	auto relativefilepath = filepath.substr(basepath_.length(), filepath.length());
+	std::wstring relativefilepath;;
+	if (basepath_.length() == filepath.length())
+	{
+		relativefilepath = FileName();
+	}
+	else
+	{
+		relativefilepath = filepath.substr(basepath_.length(), filepath.length());
+	}
+
 	const FileEntry& fileentry = hashfile_.GetFileEntry(relativefilepath);
 	if (hashFileProcessType_ == HashFileProcessType::Verify)
 	{
@@ -115,7 +142,7 @@ void HashFileProcessor::ProcessFile(const std::wstring& filepath)
 
 	LARGE_INTEGER filesize;
 	filesize.QuadPart = 0;
-	auto file = CreateFileW(filepath.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL,
+	auto file = CreateFile(filepath.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL,
 		OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (file != INVALID_HANDLE_VALUE)
 	{
@@ -157,14 +184,14 @@ void HashFileProcessor::ProcessFile(const std::wstring& filepath)
 	}
 
 	filehash->Compute(cancellationflag_);
-	std::wstring digest = filehash->digest();
+	currentdigest_ = filehash->digest();
 	if (hashFileProcessType_ == HashFileProcessType::Create)
 	{
-		hashfile_.AddFileEntry(relativefilepath, filesize, digest);
+		hashfile_.AddFileEntry(relativefilepath, filesize, currentdigest_);
 	}
 	else if (hashFileProcessType_ == HashFileProcessType::Update)
 	{
-		newhashfile_.AddFileEntry(relativefilepath, filesize, digest);
+		newhashfile_.AddFileEntry(relativefilepath, filesize, currentdigest_);
 		newfilesupdated_ = TRUE;
 	}
 	else if (hashFileProcessType_ == HashFileProcessType::Verify)
@@ -173,7 +200,7 @@ void HashFileProcessor::ProcessFile(const std::wstring& filepath)
 		{
 			report_.AddLine(L"Incorrect file size : " + relativefilepath);
 		}
-		else if (digest != fileentry.digest())
+		else if (currentdigest_ != fileentry.digest())
 		{
 			report_.AddLine(L"Incorrect hash      : " + relativefilepath);
 		}

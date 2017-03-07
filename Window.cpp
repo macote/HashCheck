@@ -10,9 +10,9 @@ void Window::Register()
 	wndclassex.cbClsExtra = 0;
 	wndclassex.cbWndExtra = 0;
 	wndclassex.hInstance = hinst_;
-	wndclassex.hIcon = (HICON)LoadImageW(hinst_, MAKEINTRESOURCE(IDI_ICON), IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR | LR_DEFAULTSIZE);
-	wndclassex.hIconSm = (HICON)LoadImageW(hinst_, MAKEINTRESOURCE(IDI_ICON), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR);
-	wndclassex.hCursor = LoadCursorW(NULL, IDC_ARROW);
+	wndclassex.hIcon = (HICON)LoadImage(hinst_, MAKEINTRESOURCE(IDI_ICON), IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR | LR_DEFAULTSIZE);
+	wndclassex.hIconSm = (HICON)LoadImage(hinst_, MAKEINTRESOURCE(IDI_ICON), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR);
+	wndclassex.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wndclassex.hbrBackground = GetSysColorBrush(COLOR_BTNFACE);
 	wndclassex.lpszMenuName = NULL;
 	wndclassex.lpszClassName = ClassName();
@@ -27,11 +27,11 @@ LRESULT CALLBACK Window::WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 		auto lpcs = reinterpret_cast<LPCREATESTRUCT>(lParam);
 		self = reinterpret_cast<Window*>(lpcs->lpCreateParams);
 		self->hwnd_ = hwnd;
-		SetWindowLongPtrW(hwnd, GWLP_USERDATA, reinterpret_cast<LPARAM>(self));
+		SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LPARAM>(self));
 	}
 	else
 	{
-		self = reinterpret_cast<Window*>(GetWindowLongPtrW(hwnd, GWLP_USERDATA));
+		self = reinterpret_cast<Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
 	}
 
 	if (self)
@@ -40,7 +40,7 @@ LRESULT CALLBACK Window::WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 	}
 	else
 	{
-		return DefWindowProcW(hwnd, uMsg, wParam, lParam);
+		return DefWindowProc(hwnd, uMsg, wParam, lParam);
 	}
 }
 
@@ -50,8 +50,8 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	switch (uMsg)
 	{
 	case WM_NCDESTROY:
-		lres = DefWindowProcW(hwnd_, uMsg, wParam, lParam);
-		SetWindowLongPtrW(hwnd_, GWLP_USERDATA, 0);
+		lres = DefWindowProc(hwnd_, uMsg, wParam, lParam);
+		SetWindowLongPtr(hwnd_, GWLP_USERDATA, 0);
 		delete this;
 		return lres;
 	case WM_PAINT:
@@ -62,7 +62,7 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		return 0;
 	}
 
-	return DefWindowProcW(hwnd_, uMsg, wParam, lParam);
+	return DefWindowProc(hwnd_, uMsg, wParam, lParam);
 }
 
 void Window::OnPaint()

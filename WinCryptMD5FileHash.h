@@ -11,8 +11,7 @@ public:
 	{
 	}
 private:
-	DWORD HashByteLength() { return WinCryptMD5FileHash::kMD5Length; }
-	PBYTE buffer() { return buffer_; };
+	DWORD HashByteLength() { return kMD5Length; }
 	PBYTE hash() { return hash_; }
 	BYTE hash_[kMD5Length];
 };

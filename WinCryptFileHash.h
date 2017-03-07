@@ -15,7 +15,6 @@ public:
 	}
 protected:
 	virtual DWORD HashByteLength() = 0;
-	virtual PBYTE buffer() = 0;
 	virtual PBYTE hash() = 0;
 	ALG_ID alg_id_{};
 private:
@@ -23,13 +22,13 @@ private:
 	void Update(UINT32 bytecount);
 	void Finalize();
 	void ConvertHashToDigestString();
-	HCRYPTPROV cryptprov_{ NULL };
-	HCRYPTHASH crypthash_{ NULL };
+	HCRYPTPROV cryptprov_{};
+	HCRYPTHASH crypthash_{};
 };
 
 inline void WinCryptFileHash::Initialize()
 {
-	if (!CryptAcquireContext(&cryptprov_, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT | CRYPT_SILENT))
+	if (!CryptAcquireContext(&cryptprov_, NULL, NULL, PROV_RSA_AES, CRYPT_VERIFYCONTEXT | CRYPT_SILENT))
 	{
 		throw std::runtime_error("WinCryptFileHash::Initialize(): CryptAcquireContext() failed.");
 	}
@@ -42,7 +41,7 @@ inline void WinCryptFileHash::Initialize()
 
 inline void WinCryptFileHash::Update(UINT32 bytecount)
 {
-	if (!CryptHashData(crypthash_, buffer(), bytecount, 0))
+	if (!CryptHashData(crypthash_, buffer_, bytecount, 0))
 	{
 		throw std::runtime_error("WinCryptFileHash::Update(): CryptHashData() failed.");
 	}
@@ -56,12 +55,12 @@ inline void WinCryptFileHash::Finalize()
 		throw std::runtime_error("WinCryptFileHash::Finalize(): CryptGetHashParam() failed.");
 	}
 
-	if (crypthash_ != NULL)
+	if (crypthash_ != 0)
 	{
 		CryptDestroyHash(crypthash_);
 	}
 
-	if (cryptprov_ != NULL)
+	if (cryptprov_ != 0)
 	{
 		CryptReleaseContext(cryptprov_, 0);
 	}

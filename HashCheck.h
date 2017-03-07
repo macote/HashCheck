@@ -12,8 +12,11 @@
 class HashCheck
 {
 private:
+	static const int kBytesProcessedNotificationBlockSize = 2097152;
+	static const HashType kDefaultHashType = HashType::SHA1;
 	static LPCWSTR kHashFileBaseName;
 	static LPCWSTR kHashCheckTitle;
+	static std::map<HashType, std::wstring> kHashTypeExtensionMap;
 public:
 	HashCheck(std::vector<std::wstring> args) : args_(args)
 	{
@@ -38,9 +41,15 @@ public:
 	BOOL updating() const { return updating_; }
 	BOOL skipcheck() const { return skipcheck_; }
 	std::wstring lastmessage() const { return lastmessage_; }
+	std::wstring basepath() const { return basepath_; }
+	HashType hashtype() const { return hashtype_; }
+	HashFileProcessType fileprocesstype() const { return hashfileprocesstype_; }
 	void set_silent(const BOOL silent) { silent_ = silent; }
 private:
 	void Initialize();
+	void InitializeHashType();
+	void InitializeTarget(std::wstring target);
+	void InitializeHashFile();
 	std::wstring GetAppFileName(LPCWSTR command) const;
 	BOOL ViewReport(LPCWSTR filepath) const;
 	static DWORD WINAPI StaticThreadStart(void* hashcheckinstance);
@@ -49,9 +58,10 @@ private:
 	std::vector<std::wstring> args_;
 	std::wstring hashfilename_;
 	std::wstring basepath_;
+	std::wstring file_;
 	std::wstring appfilename_;
 	std::wstring lastmessage_;
-	HashFileProcessType hashFileProcessType_{ HashFileProcessType::Create };
+	HashFileProcessType hashfileprocesstype_{ HashFileProcessType::Create };
 	HashType hashtype_{ HashType::Undefined };
 	BOOL silent_{};
 	BOOL checking_{};

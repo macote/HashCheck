@@ -36,6 +36,7 @@ protected:
 	LRESULT OnProgressEventData(WPARAM wParam);
 	LRESULT OnCompleteEvent();
 	void CancelProcess();
+	void CopyTextToClipboard(const std::wstring text);
 private:
 	HashCheck hashcheck_;
 	HANDLE hashcheckthread_{ INVALID_HANDLE_VALUE };
@@ -47,8 +48,10 @@ private:
 	LARGE_INTEGER filestartcounter_{};
 	BOOL cancellationflag_{};
 	HWND currentfile_{ NULL };
+	HWND resultfile_{ NULL };
 	HWND progressbar_{ NULL };
 	HWND action_{ NULL };
+	HWND copy_{ NULL };
 	HWND dlgcurrent_{ NULL };
 	HFONT captionfont_{ NULL };
 };

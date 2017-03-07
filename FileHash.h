@@ -13,7 +13,7 @@ struct FileHashBytesProcessedEventArgs
 class FileHash
 {
 public:
-	static const DWORD kDefaultBufferSize = 32768;
+	static const DWORD kDefaultBufferSize = 2097152;
 	static const DWORD kDefaultBytesProcessedNotificationBlockSize = 1048576;
 public:
 	FileHash(std::wstring filepath) : FileHash(filepath, kDefaultBufferSize)

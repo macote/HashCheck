@@ -17,8 +17,8 @@ void HashFile::Load(const std::wstring& hashfilepath)
 		{
 			pos1 = line.find('|', 0);
 			filepath = line.substr(0, pos1);
-			lstrcpyW(buffer, filepath.c_str());
-			key = CharUpperW(buffer);
+			lstrcpy(buffer, filepath.c_str());
+			key = CharUpper(buffer);
 			pos2 = line.find('|', pos1 + 1);
 			sizetemp = line.substr(pos1 + 1, pos2 - (pos1 + 1));
 			std::wstringstream wss(sizetemp);
@@ -47,8 +47,8 @@ void HashFile::AddFileEntry(const std::wstring& filepath, const LARGE_INTEGER& s
 std::map<std::wstring, FileEntry, std::less<std::wstring>>::const_iterator HashFile::FindEntry(const std::wstring& filepath) const
 {
 	WCHAR key[2048];
-	lstrcpyW(key, filepath.c_str());
-	CharUpperW(key);
+	lstrcpy(key, filepath.c_str());
+	CharUpper(key);
 	return files_.find(key);
 }
 

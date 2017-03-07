@@ -33,14 +33,14 @@ inline void FileTree::ProcessTree(const std::wstring& path, BOOL& cancellationfl
 	WIN32_FIND_DATA findfiledata;
 	HANDLE hFind;
 	std::wstring pattern = path + L"*";
-	hFind = FindFirstFileW(pattern.c_str(), &findfiledata);
+	hFind = FindFirstFile(pattern.c_str(), &findfiledata);
 	if (hFind != INVALID_HANDLE_VALUE)
 	{
 		do
 		{
 			if (findfiledata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 			{
-				if (lstrcmpW(findfiledata.cFileName, L".") != 0 && lstrcmpW(findfiledata.cFileName, L"..") != 0)
+				if (lstrcmp(findfiledata.cFileName, L".") != 0 && lstrcmp(findfiledata.cFileName, L"..") != 0)
 				{
 					std::wstring currentpath(path + findfiledata.cFileName + L"\\");
 					ProcessTree(currentpath, cancellationflag);
@@ -51,7 +51,7 @@ inline void FileTree::ProcessTree(const std::wstring& path, BOOL& cancellationfl
 				std::wstring currentfile(path + findfiledata.cFileName);
 				fileaction_.ProcessFile(currentfile);
 			}
-		} while (FindNextFileW(hFind, &findfiledata) && !cancellationflag);
+		} while (FindNextFile(hFind, &findfiledata) && !cancellationflag);
 
 		FindClose(hFind);
 	}

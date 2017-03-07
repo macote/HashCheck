@@ -11,8 +11,7 @@ public:
 	{
 	}
 private:
-	DWORD HashByteLength() { return WinCryptSHA1FileHash::kSHA1Length; }
-	PBYTE buffer() { return buffer_; };
+	DWORD HashByteLength() { return kSHA1Length; }
 	PBYTE hash() { return hash_; }
 	BYTE hash_[kSHA1Length];
 };

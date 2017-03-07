@@ -95,14 +95,14 @@
     <ClInclude Include="HashFileProcessor.h" />
     <ClInclude Include="HashFileProcessType.h" />
     <ClInclude Include="HashType.h" />
-    <ClInclude Include="MD5FileHash.h" />
     <ClInclude Include="Report.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="SHA1FileHash.h" />
     <ClInclude Include="StreamLineReader.h" />
     <ClInclude Include="StreamLineWriter.h" />
     <ClInclude Include="WinCryptMD5FileHash.h" />
     <ClInclude Include="WinCryptSHA1FileHash.h" />
+    <ClInclude Include="WinCryptSHA256FileHash.h" />
+    <ClInclude Include="WinCryptSHA512FileHash.h" />
     <ClInclude Include="Window.h" />
     <ClInclude Include="WinCryptFileHash.h" />
   </ItemGroup>
@@ -114,9 +114,7 @@
     <ClCompile Include="HashCheckWindow.cpp" />
     <ClCompile Include="HashFile.cpp" />
     <ClCompile Include="HashFileProcessor.cpp" />
-    <ClCompile Include="MD5FileHash.cpp" />
     <ClCompile Include="Program.cpp" />
-    <ClCompile Include="SHA1FileHash.cpp" />
     <ClCompile Include="StreamLineReader.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
