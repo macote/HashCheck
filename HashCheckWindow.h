@@ -27,10 +27,11 @@ public:
 	HWND dlgcurrent() const { return dlgcurrent_; }
 	void StartProcess();
 protected:
-	//virtual void PaintContent(PAINTSTRUCT* pps);
 	LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 	void UpdateTitle();
 	void UpdateTitle(LONGLONG bytespersecond);
+	void UpdateTitle(std::wstring status);
+	void UpdateTitle(std::wstring status, LONGLONG bytespersecond);
 	LRESULT OnCreate();
 	void OnNCDestroy();
 	LRESULT OnProgressEventData(WPARAM wParam);

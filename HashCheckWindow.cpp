@@ -146,15 +146,25 @@ void HashCheckWindow::StartProcess()
 
 void HashCheckWindow::UpdateTitle()
 {
-	UpdateTitle(0);
+	UpdateTitle(status_, 0);
 }
 
 void HashCheckWindow::UpdateTitle(LONGLONG bytespersecond)
 {
+	UpdateTitle(status_, bytespersecond);
+}
+
+void HashCheckWindow::UpdateTitle(std::wstring status)
+{
+	UpdateTitle(status, 0);
+}
+
+void HashCheckWindow::UpdateTitle(std::wstring status, LONGLONG bytespersecond)
+{
 	std::wstring title = L"HashCheck - " + HashTypeStrings::GetHashTypeString(hashcheck_.hashtype());
-	if (status_.length() > 0)
+	if (status.length() > 0)
 	{
-		title += L" - " + status_;
+		title += L" - " + status;
 	}
 
 	if (bytespersecond > 0)
@@ -192,7 +202,6 @@ void HashCheckWindow::UpdateTitle(LONGLONG bytespersecond)
 void HashCheckWindow::CancelProcess()
 {
 	cancellationflag_ = TRUE;
-	SendMessage(currentfile_, WM_SETTEXT, (WPARAM)NULL, (LPARAM)L"Canceling...");
 	hashcheck_.CancelProcess();
 	WaitForSingleObject(hashcheckthread_, INFINITE);
 	hashcheckthread_ = INVALID_HANDLE_VALUE;
@@ -244,17 +253,18 @@ LRESULT HashCheckWindow::OnCompleteEvent()
 		hashcheckthread_ = INVALID_HANDLE_VALUE;
 	}
 
-	DWORD exitcode;
-	GetExitCodeThread(hashcheckthread_, &exitcode);
 	status_ = L"";
-	SetWindowText(action_, L"Exit");
 	UpdateTitle();
+	SetWindowText(action_, L"Exit");
 	ShowWindow(progressbar_, SW_HIDE);
 	ShowWindow(resultfile_, SW_SHOW);
 	SendMessage(resultfile_, WM_SETTEXT, (WPARAM)NULL, (LPARAM)hashcheck_.lastmessage().c_str());
 	if (hashcheck_.fileprocesstype() == HashFileProcessType::Single)
 	{
-		ShowWindow(copy_, SW_SHOW);
+		if (!cancellationflag_)
+		{
+			ShowWindow(copy_, SW_SHOW);
+		}
 	}
 	else
 	{
@@ -324,23 +334,11 @@ LRESULT HashCheckWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 		return FALSE;
 	case WM_NCDESTROY:
-		// Death of the root window ends the thread
 		OnNCDestroy();
 		break;
 	case WM_SIZE:
-		//if (hwndChild_)
-		//{
-		//	SetWindowPos(hwndChild_, NULL, 0, 0, GET_X_LPARAM(lParam), 
-		//		GET_Y_LPARAM(lParam), SWP_NOZORDER | SWP_NOACTIVATE);
-		//}
-
 		return FALSE;
 	case WM_SETFOCUS:
-		//if (hwndChild_)
-		//{
-		//	SetFocus(hwndChild_);
-		//}
-
 		return FALSE;
 	}
 
