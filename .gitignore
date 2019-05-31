@@ -1,6 +1,7 @@
 /Release/
 /Debug/
 /Test/
+/.vs/
 *.user
 *.suo
 *.sdf

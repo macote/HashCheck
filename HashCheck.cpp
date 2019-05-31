@@ -1,6 +1,7 @@
 #include "HashCheck.h"
 
 LPCWSTR HashCheck::kHashFileBaseName = L"checksum";
+LPCWSTR HashCheck::kHashFileBaseNameAlt = L"hshchk";
 
 LPCWSTR HashCheck::kHashCheckTitle = L"HashCheck";
 
@@ -89,9 +90,11 @@ void HashCheck::Initialize()
 void HashCheck::InitializeHashType()
 {
 	WIN32_FIND_DATA findfiledata;
-	HANDLE find;
+	HANDLE find{ INVALID_HANDLE_VALUE }, findAlt{ INVALID_HANDLE_VALUE };
 
+	hashfilename_ = L"";
 	std::wstring baseFilename = kHashFileBaseName;
+	std::wstring baseFilenameAlt = kHashFileBaseNameAlt;
 	if (hashtype_ == HashType::Undefined)
 	{
 		for (const auto &pair : kHashTypeExtensionMap)
@@ -100,18 +103,46 @@ void HashCheck::InitializeHashType()
 			find = FindFirstFile(hashfilename.c_str(), &findfiledata);
 			if (find != INVALID_HANDLE_VALUE && !(findfiledata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 			{
-				FindClose(find);
 				hashtype_ = pair.first;
+				hashfilename_ = baseFilename + kHashTypeExtensionMap[hashtype_];
 			}
-		}
+			else
+			{
+				auto hashfilenameAlt = baseFilenameAlt + pair.second;
+				findAlt = FindFirstFile(hashfilenameAlt.c_str(), &findfiledata);
+				if (findAlt != INVALID_HANDLE_VALUE && !(findfiledata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+				{
+					hashtype_ = pair.first;
+					hashfilename_ = baseFilenameAlt + kHashTypeExtensionMap[hashtype_];
+				}
+			}
 
-		if (hashtype_ == HashType::Undefined)
-		{
-			hashtype_ = kDefaultHashType;
+			if (find != INVALID_HANDLE_VALUE)
+			{
+				FindClose(find);
+			}
+
+			if (findAlt != INVALID_HANDLE_VALUE)
+			{
+				FindClose(findAlt);
+			}
+
+			if (hashtype_ != HashType::Undefined)
+			{
+				break;
+			}
 		}
 	}
 
-	hashfilename_ = baseFilename + kHashTypeExtensionMap[hashtype_];
+	if (hashtype_ == HashType::Undefined)
+	{
+		hashtype_ = kDefaultHashType;
+	}
+
+	if (hashfilename_ == L"")
+	{
+		hashfilename_ = baseFilename + kHashTypeExtensionMap[hashtype_];
+	}
 }
 
 void HashCheck::InitializeTarget(std::wstring target)

@@ -231,7 +231,7 @@ LRESULT HashCheckWindow::OnProgressEventData(WPARAM wParam)
 		elapsed.QuadPart /= frequency_.QuadPart;
 		if (elapsed.QuadPart > 166666)
 		{
-			UINT value = static_cast<UINT>(ped->bytesprocessed.QuadPart * 100 / ped->filesize.QuadPart);
+			auto value = static_cast<UINT>(ped->bytesprocessed.QuadPart * 100 / ped->filesize.QuadPart);
 			SendMessage(progressbar_, PBM_SETPOS, (WPARAM)value, 0);
 			UpdateTitle((ped->bytesprocessed.QuadPart * 1000000) / elapsed.QuadPart);
 		}

@@ -111,7 +111,7 @@ void HashFileProcessor::ProcessFile(const std::wstring& filepath)
 		return;
 	}
 
-	std::wstring relativefilepath;;
+	std::wstring relativefilepath;
 	if (basepath_.length() == filepath.length())
 	{
 		relativefilepath = FileName();
@@ -164,7 +164,7 @@ void HashFileProcessor::ProcessFile(const std::wstring& filepath)
 	{
 		if (filesize.QuadPart != fileentry.size().QuadPart)
 		{
-			report_.AddLine(L"Incorrect file size : " + relativefilepath);
+			report_.AddLine(L"Incorrect file size : " + relativefilepath);	
 			hashfile_.RemoveFileEntry(relativefilepath);
 			return;
 		}
@@ -196,11 +196,7 @@ void HashFileProcessor::ProcessFile(const std::wstring& filepath)
 	}
 	else if (hashFileProcessType_ == HashFileProcessType::Verify)
 	{
-		if (filesize.QuadPart != fileentry.size().QuadPart)
-		{
-			report_.AddLine(L"Incorrect file size : " + relativefilepath);
-		}
-		else if (currentdigest_ != fileentry.digest())
+		if (CompareString(LOCALE_INVARIANT, NORM_IGNORECASE, currentdigest_.c_str(), -1, fileentry.digest().c_str(), -1) != CSTR_EQUAL)
 		{
 			report_.AddLine(L"Incorrect hash      : " + relativefilepath);
 		}

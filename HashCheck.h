@@ -15,6 +15,7 @@ private:
 	static const int kBytesProcessedNotificationBlockSize = 2097152;
 	static const HashType kDefaultHashType = HashType::SHA1;
 	static LPCWSTR kHashFileBaseName;
+	static LPCWSTR kHashFileBaseNameAlt;
 	static LPCWSTR kHashCheckTitle;
 	static std::map<HashType, std::wstring> kHashTypeExtensionMap;
 public:
